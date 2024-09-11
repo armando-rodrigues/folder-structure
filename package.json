@@ -2,7 +2,7 @@
   "name": "folder-structure",
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -11,27 +11,27 @@
   ],
   "icon": "images/dark.png",
   "repository": {"url": "https://github.com/armando-rodrigues/folder-structure.git"},
-  "activationEvents": ["extension.createFolderStructure", "foldercomands.arquiveFolder"],
+  "activationEvents": ["extension.createStructure", "extension.arquiveFolder"],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "extension.createFolderStructure",
+        "command": "extension.createStructure",
         "title": "Create Folder Structure"
       },
       {
-        "command": "foldercomands.arquiveFolder",
+        "command": "extension.arquiveFolder",
         "title": "Arquive Folder Structure"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "extension.createFolderStructure",
+          "command": "extension.createStructure",
           "group": "folder"
         },
         {
-          "command": "foldercomands.arquiveFolder",
+          "command": "extension.arquiveFolder",
           "group": "folder"
         }
       ]

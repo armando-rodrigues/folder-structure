@@ -19,7 +19,7 @@ export function arquiveFolder(context: vscode.ExtensionContext, uri: vscode.Uri,
     // const curTime = new dayjs();
     // const txtTime = curTime.format();
     // const arqFile = `${rootFile}.old.${moment}`;
-    outputChannel.show();
+    // outputChannel.show();
     outputChannel.appendLine(`Folder to Arquive: ${rootPath}`);
     outputChannel.appendLine(`File to Arquive: ${rootFile}`);
     outputChannel.appendLine(`Arquive folder: ${arqPath}`);
