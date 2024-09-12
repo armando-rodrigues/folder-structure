@@ -7,17 +7,17 @@ import { error } from 'console';
 function unMaskFile(extension: vscode.ExtensionContext, file:string, _frFolder:string):string {
 	var step:string = `unMaskFile`;
 	try {
-	  step = `resourceFile`;
-	  const resourceFile = vscode.Uri.file(extension.asAbsolutePath(file));
-	  step = `inputText`;
-	  const inputText = fs.readFileSync(resourceFile.fsPath, 'utf-8');
-	  step = `outputText`;
-	  const outputText = inputText
-	  .replace('{{frFolder}}', _frFolder);
-	  return outputText;
+        step = `resourceFile`;
+        const resourceFile = vscode.Uri.file(extension.asAbsolutePath(file));
+        step = `inputText`;
+        const inputText = fs.readFileSync(resourceFile.fsPath, 'utf-8');
+        step = `outputText`;
+        const outputText = inputText
+        .replaceAll('{{frFolder}}', _frFolder);
+        return outputText;
 	} catch (e) {
-	  vscode.window.showErrorMessage(`Error on unmasking file (${step}): ${e}`);
-	  throw error(e);
+        vscode.window.showErrorMessage(`Error on unmasking file (${step}): ${e}`);
+        throw error(e);
 	}
 }
 
@@ -28,8 +28,8 @@ export async function createStructure(context: vscode.ExtensionContext, uri: vsc
         return;
     }
     const rootPath = uri.fsPath; // Get the selected folder's path
-	const fileMinimum:string = `src/txt/minimum.txt`;
-    const fileDeploy:string = `src/txt/deploy.txt`;
+	const fileMinimum:string = `resources/minimum.txt`;
+    const fileDeploy:string = `resources/deploy.txt`;
 
     let frFolderIn = await vscode.window.showInputBox({
         prompt: 'FR a criar ?',

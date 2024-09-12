@@ -41,7 +41,7 @@ NPM Installed
 
 ## Extension Settings
 
-* `Ctrl+Shift+P` then select file `folder-structure-0.1.0.vsix` then enter  
+* `Ctrl+Shift+P` then select file `folder-structure-0.1.1.vsix` then enter  
 
 
 ## Release Notes

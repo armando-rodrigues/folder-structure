@@ -16,3 +16,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.1.0
 * Arquive Folder
+
+## 0.1.1
+* Implement resources folder
+* Correct resources variables multiple substitutions
