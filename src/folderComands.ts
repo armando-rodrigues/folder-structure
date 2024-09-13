@@ -1,9 +1,36 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as AdmZip from 'adm-zip';
 
 export function arquiveFolder(context: vscode.ExtensionContext, uri: vscode.Uri, outputChannel: vscode.OutputChannel) {
+    // Check if a folder was selected
+    if (!uri || !uri.fsPath) {
+        vscode.window.showErrorMessage('Please right-click a folder in the Explorer view.');
+        return;
+    }
+    const rootPath = uri.fsPath; // Get the selected folder's path
+    const rootFile = path.basename(rootPath);
+    const arqPath = path.join(path.dirname(rootPath), 'Arquive');
+    const arqDestPath = path.join(arqPath, rootFile);
+    // Assure existence of Arquive Folder
+    if (!fs.existsSync(arqPath)) {
+        fs.mkdirSync(arqPath, { recursive: true });
+        outputChannel.appendLine(`Created folder: ${arqPath}`);
+    } else {outputChannel.appendLine(`Already existed folder: ${arqPath}`);}
+
+    // Arquive
+    fse.move(rootPath, arqDestPath, err => {
+        if (err) {
+            outputChannel.appendLine(`${err}`);
+            return console.error(err);
+        }
+        outputChannel.appendLine(`File/Folder "${rootPath}" arquived to ${arqPath}`);
+    });
+}
+
+export function versionFolder(context: vscode.ExtensionContext, uri: vscode.Uri, outputChannel: vscode.OutputChannel) {
     // Check if a folder was selected
     if (!uri || !uri.fsPath) {
         vscode.window.showErrorMessage('Please right-click a folder in the Explorer view.');
@@ -69,5 +96,5 @@ export function arquiveFolder(context: vscode.ExtensionContext, uri: vscode.Uri,
         outputChannel.appendLine(`${rootPath} is a File`);
         zipArquiveFile(rootPath, arqFilePath);
     }
-    outputChannel.appendLine(`File/Folder "${rootPath}" arquived to ${arqFilePath}`);
+    outputChannel.appendLine(`File/Folder "${rootPath}" versioned to arquive ${arqFilePath}`);
 }

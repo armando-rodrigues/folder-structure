@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import { error } from 'console';
-import { arquiveFolder } from './folderComands';
+// import * as fs from 'fs';
+// import * as path from 'path';
+// import { error } from 'console';
+import { arquiveFolder, versionFolder } from './folderComands';
 import { createStructure } from './folderStruct';
 
 
@@ -22,13 +22,18 @@ export function activate(context: vscode.ExtensionContext) {
 		arquiveFolder(context, uri, outputChannel);
 	});
 
-    let disp2 = vscode.commands.registerCommand('extension.createStructure', async (uri: vscode.Uri) => {
+    let disp2 = vscode.commands.registerCommand('extension.versionFolder', async (uri: vscode.Uri) => {
+		versionFolder(context, uri, outputChannel);
+	});
+
+    let disp3 = vscode.commands.registerCommand('extension.createStructure', async (uri: vscode.Uri) => {
 		createStructure(context, uri, outputChannel);
 	});
   
 	context.subscriptions.push(outputChannel);
 	context.subscriptions.push(disp1);
 	context.subscriptions.push(disp2);
+	context.subscriptions.push(disp3);
 }
 
 // This method is called when your extension is deactivated

@@ -20,3 +20,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## 0.1.1
 * Implement resources folder
 * Correct resources variables multiple substitutions
+
+## 0.2.0
+* Versionate Folder
