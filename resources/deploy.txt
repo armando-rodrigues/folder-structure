@@ -1,5 +1,5 @@
 
-{{frFolder}} #comment {{frFolder}} [COMMENT PARA O COMMIT EM GIT]\n\n\n#### Branches Git:
+{{frFolder}} #comment {{frFolder}} [COMMENT PARA O COMMIT EM GIT]
           
 #### Branches Git:
 #    feature/{{frFolder}}
