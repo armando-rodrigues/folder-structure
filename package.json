@@ -2,7 +2,7 @@
   "name": "folder-structure",
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -26,11 +26,15 @@
       },
       {
         "command": "extension.arquiveFolder",
-        "title": "Arquive Folder Structure"
+        "title": "Arquive Folder/File Structure"
       },
       {
         "command": "extension.versionFolder",
-        "title": "Save Folder Version"
+        "title": "Save Folder/File Version"
+      },
+      {
+        "command": "extension.zipArquive",
+        "title": "Zip Arquive Folder/File"
       }
     ],
     "menus": {
@@ -45,6 +49,10 @@
         },
         {
           "command": "extension.versionFolder",
+          "group": "folder"
+        },
+        {
+          "command": "extension.zipArquive",
           "group": "folder"
         }
       ]

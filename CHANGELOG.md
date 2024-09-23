@@ -23,3 +23,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.2.0
 * Versionate Folder
+
+## 0.3.0
+* Implement Zip Arquive

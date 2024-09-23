@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 // import * as fs from 'fs';
 // import * as path from 'path';
 // import { error } from 'console';
-import { arquiveFolder, versionFolder } from './folderComands';
+import { arquiveFolder, versionFolder, zipArquive } from './folderComands';
 import { createStructure } from './folderStruct';
 
 
@@ -29,11 +29,16 @@ export function activate(context: vscode.ExtensionContext) {
     let disp3 = vscode.commands.registerCommand('extension.createStructure', async (uri: vscode.Uri) => {
 		createStructure(context, uri, outputChannel);
 	});
+
+    let disp4 = vscode.commands.registerCommand('extension.zipArquive', async (uri: vscode.Uri) => {
+		zipArquive(context, uri, outputChannel);
+	});
   
 	context.subscriptions.push(outputChannel);
 	context.subscriptions.push(disp1);
 	context.subscriptions.push(disp2);
 	context.subscriptions.push(disp3);
+	context.subscriptions.push(disp4);
 }
 
 // This method is called when your extension is deactivated
