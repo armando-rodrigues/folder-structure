@@ -3,6 +3,8 @@
 All notable changes to the "folder-structure" extension will be documented in this file.
 
 
+# Unpublished
+
 ## 0.0.1 - 2024-09-06
 * Initial release
 
@@ -35,10 +37,13 @@ All notable changes to the "folder-structure" extension will be documented in th
 * Resource location issue
 
 
+# Published
+
+## 1.0.0 - 2024-09-25
+* First version to be published
+
+
 
 ## [Unreleased]
 
 # Unpublished
-
-## 1.0.0
-* First version to be published

@@ -3,7 +3,7 @@
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
   "publisher": "armando-rodrigues",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.93.0"
   },
