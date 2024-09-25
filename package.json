@@ -2,7 +2,8 @@
   "name": "folder-structure",
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
-  "version": "0.3.0",
+  "publisher": "armando-rodrigues",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.93.0"
   },

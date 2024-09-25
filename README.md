@@ -30,8 +30,8 @@ Context menu group:
 - The arquive folder has the same parent folder of the folder to arquive.  
 - Folder is not removed in the arquive process.  
 
-
-![Feature Usage](./images/project-folder-structure.gif)
+<!-- ![Feature Usage](images/project-folder-structure.gif) -->
+![Feature Usage](https://raw.githubusercontent.com/armando-rodrigues/folder-structure/171b2ef5008da86472a78ce07bd9aef599c727e9/images/project-folder-structure.gif)
 
 
 ## Requirements
