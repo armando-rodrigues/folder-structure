@@ -56,7 +56,7 @@ Context menu group:
 
 
 <!-- ![Feature Usage](images/project-folder-structure.gif) -->
-![Feature Usage](https://raw.githubusercontent.com/armando-rodrigues/folder-structure/171b2ef5008da86472a78ce07bd9aef599c727e9/images/project-folder-structure.gif)
+![Feature Usage](https://raw.githubusercontent.com/armando-rodrigues/folder-structure/8a9077c66fc30e048acc69480b24a6dffe0e632c/images/project-folder-structure.gif)
 
 
 ## Requirements  
