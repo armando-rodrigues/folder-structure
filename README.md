@@ -1,6 +1,6 @@
 # Folder Structure  
 
-**Id**: folder-structure  
+**Id**: folder-structure-afr  
 **Author**: Armando Rodrigues  
 **Description**: Tools for Project Folder Structure or FR Feature Folder  
 
@@ -67,7 +67,7 @@ NPM Installed
 ## Extension Settings  
 
 ### Local instalation  
-* `Ctrl+Shift+P` then select `Extensions: install from VSIX` then select the local file `folder-structure-1.0.0.vsix` then enter  
+* `Ctrl+Shift+P` then select `Extensions: install from VSIX` then select the local file `folder-structure-afr-1.0.0.vsix` then enter  
 
 ### Instalation from Published  
 * Assure web connection  

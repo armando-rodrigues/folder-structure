@@ -40,7 +40,8 @@ All notable changes to the "folder-structure" extension will be documented in th
 # Published
 
 ## 1.0.0 - 2024-09-25
-* First version to be published
+* First version to be published  
+* Changed Id for folder-structure-afr to become unique  
 
 
 
