@@ -28,8 +28,8 @@ export async function createStructure(context: vscode.ExtensionContext, uri: vsc
         return;
     }
     const rootPath = uri.fsPath; // Get the selected folder's path
-	const fileMinimum:string = `resources/minimum.txt`;
-    const fileDeploy:string = `resources/deploy.txt`;
+	const fileMinimum:string = `resources/txt/minimum.txt`;
+    const fileDeploy:string = `resources/txt/deploy.txt`;
 
     let frFolderIn = await vscode.window.showInputBox({
         prompt: 'FR a criar ?',

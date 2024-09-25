@@ -3,7 +3,7 @@
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
   "publisher": "armando-rodrigues",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -12,6 +12,7 @@
   ],
   "icon": "images/dark.png",
   "repository": {
+    "type": "git",
     "url": "https://github.com/armando-rodrigues/folder-structure.git"
   },
   "activationEvents": [
