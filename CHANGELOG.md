@@ -29,3 +29,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.4.0
 * Solve readme image issues
+
+## 0.5.0
+* Implement licence and finalize readme
+
+## 0.6.0
+* Update readme image

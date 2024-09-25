@@ -3,7 +3,7 @@
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
   "publisher": "armando-rodrigues",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -16,7 +16,9 @@
   },
   "activationEvents": [
     "extension.createStructure",
-    "extension.arquiveFolder"
+    "extension.arquiveFolder",
+    "extension.versionFolder",
+    "extension.zipArquive"
   ],
   "main": "./out/extension.js",
   "contributes": {
