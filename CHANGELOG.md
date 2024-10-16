@@ -43,6 +43,9 @@ All notable changes to the "folder-structure" extension will be documented in th
 * First version to be published  
 * Changed Id for folder-structure-afr to become unique  
 
+## 1.0.1 - 2024-10-16
+* Input box for FR input ignores focus out  
+
 
 
 ## [Unreleased]

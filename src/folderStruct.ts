@@ -32,6 +32,7 @@ export async function createStructure(context: vscode.ExtensionContext, uri: vsc
     const fileDeploy:string = `resources/txt/deploy.txt`;
 
     let frFolderIn = await vscode.window.showInputBox({
+        ignoreFocusOut: true,
         prompt: 'FR a criar ?',
         value: 'FR-#####'
     });
