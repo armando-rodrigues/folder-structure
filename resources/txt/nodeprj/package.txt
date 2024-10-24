@@ -1,0 +1,35 @@
+{
+  "name": "{{prjId}}",
+  "displayName": "{{prjName}}",
+  "description": "{{prjDesc}}",
+  "publisher": "{{prjAuth}}",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "{{gitRepo}}"
+  },
+  "main": "main.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "start": "node main.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.x",
+    "@types/vscode": "^1.93.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0"
+  }
+}

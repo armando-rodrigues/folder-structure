@@ -67,20 +67,36 @@ NPM Installed
 ## Extension Settings  
 
 ### Local instalation  
-* `Ctrl+Shift+P` then select `Extensions: install from VSIX` then select the local file `folder-structure-afr-1.0.0.vsix` then enter  
+* `Ctrl+Shift+P` then select `Extensions: install from VSIX` then select the local file [folder-structure-afr-`version`.vsix] then enter  
 
 ### Instalation from Published  
 * Assure web connection  
 * Search in published extensions for "Folder Structure"  
+* If possible (acording to your desire/needs), choose the `Auto Update` option  
 * Press Install  
 
 
 ## Release Notes  
-
-Helps on project folder automation.  
+Accessible from context menu.  
+Folder group helps on project folder automation.  
 Works with feature nomenclature line `FR-NNNNNN`, where `NNNNN` is an integer number.  
+Project group helps on nodejs project creation automation.  
+
+### 1.2.0  
+Context Menu Grops:
+* Folder Group  
+    * Create Folder Structure  
+    * Arquive Folder/File Structure  
+    * Save Folder/File Version  
+    * Zip Arquive Folder/File  
+* Project Group  
+    * NodeJS Project  
+    * Simple Desktop Project  
+    * Desktop Project  
 
 
-### 1.0.0  
+## Known Issues  
 
-Initial release of Project Folder Structure  
+### [v 1.2.0]
+* In project group, the `Desktop Project` is available but it's not yet full implemented.  
+* In future, it's expected to have here the possibility of creating a desktop project with multiple separators and tables.  

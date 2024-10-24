@@ -46,6 +46,12 @@ All notable changes to the "folder-structure" extension will be documented in th
 ## 1.0.1 - 2024-10-16
 * Input box for FR input ignores focus out  
 
+## 1.2.0 - 2024-10-24
+* New Project Group  
+    * NodeJS Project  
+    * Simple Desktop Project  
+    * Desktop Project [`Separators and Tables yet to implement`]  
+
 
 
 ## [Unreleased]

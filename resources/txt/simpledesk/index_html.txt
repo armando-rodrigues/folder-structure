@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{prjName}}</title>
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js" defer></script>
+</head>
+<body>
+    <div class="outer-container">
+    <!-- Top section: Title and General Commands -->
+    <div class="top-section">
+        <!-- Example -->
+        <label for="sel_Option">Select Option: </label>
+        <select id="sel_Option" name="sel_Option" title="Select your option">
+            <option>Red</option>
+            <option>Green</option>
+            <option>Blue</option>
+        </select>
+        <button type="button" class="topCmd" id="cmdSomething" onclick="alert('Do something!');" title="This is an example&#10;of a simple command&#10;in the top general section.">Something General</button>
+    </div>
+
+    <!-- Middle section: Contents -->
+    <div class="middle-section">
+        <form>
+            <label for="txtName">Name: </label>
+            <input type="text" id="txtName" value="">
+            <button type="button" id="cmdGo" onclick="cmdGoFunc();" title="Click Me">Go</button>
+        </form>
+    </div>
+
+    <!-- Bottom section: status messages -->
+    <div class="bottom-section">
+        <div id="output" title="Status text"></div>
+    </div>
+    </div>
+
+    <script src="renderer.js" defer></script>
+</body>
+</html>

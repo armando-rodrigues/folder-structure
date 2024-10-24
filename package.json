@@ -3,7 +3,7 @@
   "displayName": "Folder Structure",
   "description": "Tools for Project Folder Structure or FR Feature Folder",
   "publisher": "armando-fernandes-rodrigues",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -19,7 +19,10 @@
     "extension.createStructure",
     "extension.arquiveFolder",
     "extension.versionFolder",
-    "extension.zipArquive"
+    "extension.zipArquive",
+    "extension.nodePrj",
+    "extension.simpleDeskPrj",
+    "extension.deskPrj"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -39,6 +42,18 @@
       {
         "command": "extension.zipArquive",
         "title": "Zip Arquive Folder/File"
+      },
+      {
+        "command": "extension.nodePrj",
+        "title": "NodeJS Project"
+      },
+      {
+        "command": "extension.simpleDeskPrj",
+        "title": "Simple Desktop Project"
+      },
+      {
+        "command": "extension.deskPrj",
+        "title": "Desktop Project"
       }
     ],
     "menus": {
@@ -58,6 +73,18 @@
         {
           "command": "extension.zipArquive",
           "group": "folder"
+        },
+        {
+          "command": "extension.nodePrj",
+          "group": "project"
+        },
+        {
+          "command": "extension.simpleDeskPrj",
+          "group": "project"
+        },
+        {
+          "command": "extension.deskPrj",
+          "group": "project"
         }
       ]
     }

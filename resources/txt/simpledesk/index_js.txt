@@ -1,0 +1,7 @@
+console.log('Just a Test Message');
+
+function cmdGoFunc() {
+    const txt = document.querySelector('#txtName');
+    const outMessage = document.querySelector('#output');
+    outMessage.textContent = `Input = ${txt.value}`;
+}
