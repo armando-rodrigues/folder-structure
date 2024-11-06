@@ -1,0 +1,10 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Read initial data from main process and fill forms
+    // ================================================================================
+    window.api.sendInitialData((data) => {
+        document.getElementById("output").textContent = JSON.stringify(data);
+    });
+
+});
+

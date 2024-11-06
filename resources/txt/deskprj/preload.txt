@@ -1,0 +1,16 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electron', {
+    // openFile: async () => {
+    //     return ipcRenderer.invoke('dialog:openFile');
+    // },
+    // loadDataFromFile: async (filePath) => {
+    //     return ipcRenderer.invoke('file:loadData', filePath);
+    // },
+    // saveFile: async () => {
+    //     return ipcRenderer.invoke('dialog:saveFile');
+    // },
+    // saveDataToFile: async (filePath, data) => {
+    //     return ipcRenderer.invoke('file:saveData', filePath, data);
+    // }
+});

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Match Metadata</title>
+  <link rel="stylesheet" href="index.css">
+  <script src="data_structures.js"></script>
+  <script src="default_data.js"></script>
+  <script src="index.js"></script>
+</head>
+<body>
+  
+  <div class="outer-container">
+    <!-- Top section: Title and Select option with the list of baselines -->
+    <div class="top-section">
+      <!-- Select option with the list of baselines -->
+      <label for="sel_Baseline">Working Project: </label>
+      <label for="table-2-total-t2c1">Total for t2c1</label>
+      <input id="table-2-total-t2c1" type="number">
+      <label for="table-2-total-t2c6">Total for t2c6</label>
+      <input id="table-2-total-t2c6" type="checkbox" onclick="return false;">
+    </div>
+  
+    <!-- Middle section: containing tabs and other elements -->
+    <div class="middle-section">
+      <!-- Inner top: multi-tab control -->
+      <div class="inner-top-section">
+        <!-- Tab links -->
+        <div class="tab">
+          <button class="tablinks" onclick="openTab(event, 'Projects')" id="defaultOpen">Projects</button>
+          <button class="tablinks" onclick="openTab(event, 'Jira_Tasks')">Jira Tasks</button>
+        </div>
+      </div>
+
+      <!-- Inner middle section: tabs container -->
+      <div class="inner-middle-section">
+        <!-- Tab content -->
+        <div id="Projects" class="tabcontent" name="table-1"></div>
+        <div id="Jira_Tasks" class="tabcontent" name="table-2"></div>
+      </div>
+
+      <!-- Inner bottom section: command butons -->
+      <div class="inner-bottom-section">
+        <!-- Command buttons for Baselines -->
+        <div id="cmdProjects" class="tabCommand" name="table-1">
+          <button type="button" class="bottomCmd" title="Add new Project to the list" onclick="newRow(event)">New Project</button>
+          <button type="button" class="bottomCmd" name="table-1" title="Save the project list" onclick="getAllTablesData()">Save</button>
+        </div>
+
+        <!-- Command buttons for MV Columns -->
+        <div id="cmdJira_Tasks" class="tabCommand" name="table-2">
+          <button type="button" class="bottomCmd" title="Add new Jira Task to the list" onclick="newRow(event)">New Task</button>
+          <button type="button" class="bottomCmd" name="table-2" title="Save the Tasks list" onclick="getAllTablesData()">Save</button>
+        </div>
+          
+    </div>
+
+    
+    <!-- Bottom section: status messages -->
+    <div class="bottom-section">
+      <!-- Campo para exibir a resposta -->
+       <div id="output" title="Status text"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      defineStructures();
+      startDefaultData();
+      document.getElementById("defaultOpen").click();
+    });
+  </script>
+  <!-- <script src="renderer.js" defer></script> -->
+</body>
+</html>

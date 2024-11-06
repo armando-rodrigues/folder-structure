@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { error } from 'console';
+import { Context } from 'mocha';
 
 const defAuthor = require('os').userInfo().username.toString();
 const defRepo = 'https://github.com/armando-rodrigues/folder-structure.git';
@@ -24,7 +25,7 @@ function unMaskFile(extension: vscode.ExtensionContext, file:string, _prjValues:
 }
 
 export async function nodePrj(context: vscode.ExtensionContext, uri: vscode.Uri, outputChannel: vscode.OutputChannel) {
-    await vscode.window.showInformationMessage('Testing message', { detail: 'This is a simple NodeJS Project', modal: true }, ...['OK']).then((item) => {if (item !== undefined) outputChannel.appendLine(item.toString());});
+    // await vscode.window.showInformationMessage('Testing message', { detail: 'This is a simple NodeJS Project', modal: true }, ...['OK']).then((item) => {if (item !== undefined) outputChannel.appendLine(item.toString());});
     // Check if a folder was selected
     if (!uri || !uri.fsPath) {
         vscode.window.showErrorMessage('Please right-click a folder in the Explorer view.');
@@ -129,7 +130,7 @@ export async function nodePrj(context: vscode.ExtensionContext, uri: vscode.Uri,
 }
 
 export async function simpleDesktopPrj(context: vscode.ExtensionContext, uri: vscode.Uri, outputChannel: vscode.OutputChannel) {
-    await vscode.window.showInformationMessage('Testing message', { detail: 'This is a Simple Desktop Project', modal: true }, ...['OK']).then((item) => {if (item !== undefined) outputChannel.appendLine(item.toString());});
+    // await vscode.window.showInformationMessage('Testing message', { detail: 'This is a Simple Desktop Project', modal: true }, ...['OK']).then((item) => {if (item !== undefined) outputChannel.appendLine(item.toString());});
     // Check if a folder was selected
     if (!uri || !uri.fsPath) {
         vscode.window.showErrorMessage('Please right-click a folder in the Explorer view.');
@@ -233,7 +234,7 @@ export async function simpleDesktopPrj(context: vscode.ExtensionContext, uri: vs
 }
 
 export async function desktopPrj(context: vscode.ExtensionContext, uri: vscode.Uri, outputChannel: vscode.OutputChannel) {
-    await vscode.window.showInformationMessage('Testing message', { detail: 'This is a Desktop Project', modal: true }, ...['OK']).then((item) => {if (item !== undefined) outputChannel.appendLine(item.toString());});
+    // await vscode.window.showInformationMessage('Testing message', { detail: 'This is a Desktop Project', modal: true }, ...['OK']).then((item) => {if (item !== undefined) outputChannel.appendLine(item.toString());});
     // Check if a folder was selected
     if (!uri || !uri.fsPath) {
         vscode.window.showErrorMessage('Please right-click a folder in the Explorer view.');
@@ -319,8 +320,8 @@ export async function desktopPrj(context: vscode.ExtensionContext, uri: vscode.U
         prjAuth: prjAuth,
         gitRepo: gitRep
     };
-    let source = ['main.txt', 'package.txt', 'README.txt', 'gitignore.txt', 'preload.txt', 'renderer.txt', 'index_html.txt', 'index_css.txt'];
-    const target = ['main.js', 'package.json', 'README.md', '.gitignore', 'preload.js', 'renderer.js', 'index.html', 'index.css'];
+    let source = ['main.txt', 'package.txt', 'README.txt', 'LICENSE.txt', 'gitignore.txt', 'preload.txt', 'renderer.txt', 'index_html.txt', 'index_js.txt', 'index_css.txt', 'data_structures.txt', 'default_data.txt'];
+    const target = ['main.js', 'package.json', 'README.md', 'LICENSE', '.gitignore', 'preload.js', 'renderer.js', 'index.html', 'index.js', 'index.css', 'data_structures.js', 'default_data.js'];
     source.forEach((item) => {source.splice(source.indexOf(item), 1, path.join(resourceFolder, item));});
     let files = [];
     for (let i=0; i<source.length; i++) {
@@ -334,5 +335,35 @@ export async function desktopPrj(context: vscode.ExtensionContext, uri: vscode.U
         fs.writeFileSync(filePath, file.content);
         outputChannel.appendLine(`Created file: ${filePath}`);
     });
+
+    // Copy resource image files
+    // const sourceDir = path.join(resourceFolder, 'images');
+    const sourceDir = path.join(context.extensionPath, 'resources', 'txt', 'deskprj', 'images');
+    const targetDir = path.join(rootPath, prjFolder, 'images');
+    // Assure target Dir
+    if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+    }
+    // Copy all images
+    function copyImages() {
+        fs.readdir(sourceDir, (err, files) => {
+            if (err) {
+                outputChannel.appendLine(`Error reading source directory: ${err}`);
+                return;
+            }
+            files.forEach((file) => {
+                const sourceFile = path.join(sourceDir, file);
+                const targetFile = path.join(targetDir, file);
+                fs.copyFile(sourceFile, targetFile, (err) => {
+                    if (err) {
+                        outputChannel.appendLine(`Error copying ${file}: ${err}`);
+                    } else {
+                        outputChannel.appendLine(`Copied ${file} to ${targetDir}`);
+                    }
+                });
+            });
+        });
+    }
+    copyImages();
     outputChannel.appendLine(`Desktop project ${prjFolder} was created!`);
 }

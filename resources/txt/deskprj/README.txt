@@ -11,7 +11,7 @@ npm install
 
 
 ## Run the project  
-npm start  
+npx electron .  
 
 
 ## Version  

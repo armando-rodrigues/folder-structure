@@ -52,6 +52,10 @@ All notable changes to the "folder-structure" extension will be documented in th
     * Simple Desktop Project  
     * Desktop Project [`Separators and Tables yet to implement`]  
 
+## 1.3.0 - 2024-11-06
+* Completed  
+    * Desktop Project [`implemented`]  
+
 
 
 ## [Unreleased]

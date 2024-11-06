@@ -94,9 +94,13 @@ Context Menu Grops:
     * Simple Desktop Project  
     * Desktop Project  
 
+## 1.3.0 - 2024-11-06
+* Completed  
+    * Desktop Project [`implemented`]  
+
 
 ## Known Issues  
 
-### [v 1.2.0]
+### [v 1.2.0] - Solved with [v 1.3.0]
 * In project group, the `Desktop Project` is available but it's not yet full implemented.  
 * In future, it's expected to have here the possibility of creating a desktop project with multiple separators and tables.  
