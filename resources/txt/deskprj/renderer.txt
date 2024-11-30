@@ -84,9 +84,13 @@ document.addEventListener('DOMContentLoaded', () =>  {
     let myData = [];
     let mySelectedData = [];
 
-    document.querySelectorAll('.tablinks').forEach(element => {element.addEventListener("click", (event) => {openTab(event);});});
-    document.querySelectorAll('.bottomCmd.new').forEach(element => {element.addEventListener("click", (event) => {newRow(event);})});
-    document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {saveAllTables();})});
+    // document.querySelectorAll('.tablinks').forEach(element => {element.addEventListener("click", (event) => {openTab(event);});});
+    // document.querySelectorAll('.bottomCmd.new').forEach(element => {element.addEventListener("click", (event) => {newRow(event);})});
+    // document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {saveAllTables();})});
+
+    // document.querySelectorAll('#filter').forEach(f => {f.querySelectorAll(`datalist`).forEach(element => {element.addEventListener("change", (event) => {filterAllTables();});})});
+    // document.querySelector('#finalCmd').addEventListener("click", (event) => {finalOutput();});
+    // document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {getAllTablesData(event);})});
 
     async function filterAllTables(ev) {
         idSelected = ev.target.value;
@@ -484,7 +488,72 @@ document.addEventListener('DOMContentLoaded', () =>  {
             }
         }
     }
-        
+
+    /**
+     * Set up all HTML main structures
+     * @returns {null}
+     */
+    function defineMainHTMLStructures() {
+        // console.log('INICIO');
+        if (myTables == undefined) return false;
+        let structTopOuter = document.querySelector('.inner-top-section');
+        if (structTopOuter === undefined) return false;
+        let structTopInner = structTopOuter.querySelector('.tab');
+        if (structTopInner === undefined) return false;
+        let structMidInner = document.querySelector('.inner-middle-section');
+        if (structMidInner === undefined) return false;
+        let structBotInner = document.querySelector('.inner-bottom-section');
+        if (structBotInner === undefined) return false;
+        structTopInner.replaceChildren();
+        structMidInner.replaceChildren();
+        structBotInner.replaceChildren();
+        let position = 0;
+        for (let tab of myTables) {
+            // Create Main Structure
+            // Tab Commands Structure
+            const structTab = document.createElement('button');
+            structTab.className="tablinks";
+            structTab.name=tab.home;
+            if (position == 0) structTab.id="defaultOpen";
+            structTab.innerHTML=tab.home_title;
+            structTopInner.appendChild(structTab);
+            ++position;
+            // Tab Contents Structure
+            const structContent = document.createElement('div');
+            structContent.id=tab.home;
+            structContent.className="tabcontent";
+            structContent.setAttribute("name", tab.name);
+            structMidInner.appendChild(structContent);
+            // Bottom Commands Structure
+            const structCmd = document.createElement('div');
+            const cmdNew = document.createElement('button');
+            const cmdSave = document.createElement('button');
+            structCmd.id=`cmd${tab.home}`;
+            structCmd.className="tabCommand";
+            structCmd.name=tab.name;
+            // Button New
+            cmdNew.type="button";
+            cmdNew.className="bottomCmd new";
+            cmdNew.name=tab.name;
+            cmdNew.title=`Add new ${tab.home} to the list`;
+            cmdNew.innerHTML=`New ${tab.home}`;
+            structCmd.appendChild(cmdNew);
+            // Button Save
+            cmdSave.type="button";
+            cmdSave.className="bottomCmd save";
+            cmdSave.name=tab.name;
+            cmdSave.title=`Save the ${tab.home} list`;
+            cmdSave.innerHTML=`Save`;
+            structCmd.appendChild(cmdSave);
+            structBotInner.appendChild(structCmd);
+        }
+        document.querySelectorAll('.tablinks').forEach(element => {element.addEventListener("click", (event) => {openTab(event);});});
+        document.querySelectorAll('.bottomCmd.new').forEach(element => {element.addEventListener("click", (event) => {newRow(event);})});
+        document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {saveAllTables();})});
+        document.getElementById('defaultOpen').click();
+        return true;
+    }
+
     /**
      * Set up all table structures
      * @returns {null}
@@ -492,7 +561,68 @@ document.addEventListener('DOMContentLoaded', () =>  {
     function defineStructures() {
         // console.log('INICIO');
         if (myTables == undefined) return;
+        const defMainStruct = defineMainHTMLStructures();
+        if (!defMainStruct) {
+            writeMsg(`FATAL ERROR: Not possible do create main html structure!`);
+            return;
+        }
+        // let structTopOuter = document.querySelector('.inner-top-section');
+        // if (structTopOuter === undefined) {writeMsg(`FATAL ERROR: No top section structure found!`);return;}
+        // let structTopInner = structTopOuter.querySelector('.tab');
+        // if (structTopInner === undefined) {writeMsg(`FATAL ERROR: No top tab section structure found!`);return;}
+        // let structMidInner = document.querySelector('.inner-middle-section');
+        // if (structMidInner === undefined) {writeMsg(`FATAL ERROR: No tab content middle section structure found!`);return;}
+        // let structBotInner = document.querySelector('.inner-bottom-section');
+        // if (structBotInner === undefined) {writeMsg(`FATAL ERROR: No tab commands bottom section structure found!`);return;}
+        // structTopInner.replaceChildren();
+        // structMidInner.replaceChildren();
+        // structBotInner.replaceChildren();
+        // let position = 0;
         for (let tab of myTables) {
+            // // Create Main Structure
+            // // Tab Commands Structure
+            // const structTab = document.createElement('button');
+            // structTab.className="tablinks";
+            // structTab.name=tab.home;
+            // if (position == 0) structTab.id="defaultOpen";
+            // structTab.innerHTML=tab.home_title;
+            // structTopInner.appendChild(structTab);
+            // ++position;
+            // // Tab Contents Structure
+            // const structContent = document.createElement('div');
+            // structContent.id=tab.home;
+            // structContent.className="tabcontent";
+            // structContent.name=tab.name;
+            // structMidInner.appendChild(structContent);
+            // // Bottom Commands Structure
+            // const structCmd = document.createElement('div');
+            // const cmdNew = document.createElement('button');
+            // const cmdSave = document.createElement('button');
+            // structCmd.id=`cmd${tab.home}`;
+            // structCmd.className="tabCommand";
+            // structCmd.name=tab.name;
+            // // Button New
+            // cmdNew.type="button";
+            // cmdNew.className="bottomCmd new";
+            // cmdNew.name=tab.name;
+            // cmdNew.title=`Add new ${tab.home} to the list`;
+            // cmdNew.innerHTML=`New ${tab.home}`;
+            // structCmd.appendChild(cmdNew);
+            // cmdNew.addEventListener("click", (event) => {newRow(event);});
+            // // Button Save
+            // cmdSave.type="button";
+            // cmdSave.className="bottomCmd save";
+            // cmdSave.name=tab.name;
+            // cmdSave.title=`Save the ${tab.home} list`;
+            // cmdSave.innerHTML=`Save`;
+            // structCmd.appendChild(cmdSave);
+            // cmdSave.addEventListener("click", (event) => {saveAllTables();});
+            // structBotInner.appendChild(structCmd);
+            // structTab.addEventListener("click", (event) => {openTab(event);});
+            // // document.querySelectorAll('.tablinks').forEach(element => {element.addEventListener("click", (event) => {openTab(event);});});
+            // // document.querySelectorAll('.bottomCmd.new').forEach(element => {element.addEventListener("click", (event) => {newRow(event);})});
+            // // document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {saveAllTables();})});
+            // Create Table Structure
             const xtTarget = document.querySelector(`.tabcontent[name="${tab.name}"]`);
             if (xtTarget == undefined) continue;
             const xtTitle = document.createElement('h3');
@@ -555,6 +685,7 @@ document.addEventListener('DOMContentLoaded', () =>  {
                 document.addEventListener("mouseup", stopResize);
             });
         });
+        // document.getElementById('defaultOpen').click();
     }
 
     /**

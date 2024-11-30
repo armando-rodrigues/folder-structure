@@ -101,6 +101,11 @@ Context Menu Grops:
 ## 1.4.0 - 2024-11-30
 * Improoved `Desktop Project` with tables  
 
+## 1.4.1 - 2024-11-30
+* Improoved `Desktop Project`:  
+    * Main HTML structure build by app according to data structure  
+    * No need to edit HTML for each table  
+
 
 ## Known Issues  
 

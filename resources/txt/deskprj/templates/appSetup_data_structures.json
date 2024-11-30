@@ -13,6 +13,8 @@
     "tables": [
         {
             "name": "table-1",
+            "home": "Table1",
+            "home_title": "Table 1",
             "title": "Table Number 1",
             "mainfilter": "t1c1",
             "columnList": [
@@ -80,6 +82,8 @@
         },
         {
             "name": "table-2",
+            "home": "Table2",
+            "home_title": "Table 2",
             "title": "Table Number 2",
             "mainfilter": "t2c5",
             "columnList": [
