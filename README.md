@@ -98,6 +98,9 @@ Context Menu Grops:
 * Completed  
     * Desktop Project [`implemented`]  
 
+## 1.4.0 - 2024-11-30
+* Improoved `Desktop Project` with tables  
+
 
 ## Known Issues  
 

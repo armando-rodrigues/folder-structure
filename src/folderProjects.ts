@@ -320,8 +320,8 @@ export async function desktopPrj(context: vscode.ExtensionContext, uri: vscode.U
         prjAuth: prjAuth,
         gitRepo: gitRep
     };
-    let source = ['main.txt', 'package.txt', 'README.txt', 'LICENSE.txt', 'gitignore.txt', 'preload.txt', 'renderer.txt', 'index_html.txt', 'index_js.txt', 'index_css.txt', 'data_structures.txt', 'default_data.txt'];
-    const target = ['main.js', 'package.json', 'README.md', 'LICENSE', '.gitignore', 'preload.js', 'renderer.js', 'index.html', 'index.js', 'index.css', 'data_structures.js', 'default_data.js'];
+    let source = ['main.txt', 'package.txt', 'README.txt', 'LICENSE.txt', 'gitignore.txt', 'preload.txt', 'renderer.txt', 'index_html.txt', 'index_css.txt', 'run_bat.txt', 'run_sh.txt'];
+    const target = ['main.js', 'package.json', 'README.md', 'LICENSE', '.gitignore', 'preload.js', 'renderer.js', 'index.html', 'index.css', 'run.bat', 'run.sh'];
     source.forEach((item) => {source.splice(source.indexOf(item), 1, path.join(resourceFolder, item));});
     let files = [];
     for (let i=0; i<source.length; i++) {
@@ -336,34 +336,66 @@ export async function desktopPrj(context: vscode.ExtensionContext, uri: vscode.U
         outputChannel.appendLine(`Created file: ${filePath}`);
     });
 
-    // Copy resource image files
+    // Copy config files
     // const sourceDir = path.join(resourceFolder, 'images');
-    const sourceDir = path.join(context.extensionPath, 'resources', 'txt', 'deskprj', 'images');
-    const targetDir = path.join(rootPath, prjFolder, 'images');
-    // Assure target Dir
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-    }
-    // Copy all images
-    function copyImages() {
-        fs.readdir(sourceDir, (err, files) => {
+    let sourceDir = path.join(context.extensionPath, 'resources', 'txt', 'deskprj', 'templates');
+    let targetDir = path.join(rootPath, prjFolder, 'templates');
+    // Function to Copy all files
+    function copyFiles(fileTypes:string, sourcePath:string, targetPath:string) {
+        // Assure target Dir
+        if (!fs.existsSync(path.resolve(targetPath))) {
+            fs.mkdirSync(targetPath, { recursive: true });
+        }
+        // Copy all files
+        fs.readdir(sourcePath, (err, files) => {
             if (err) {
-                outputChannel.appendLine(`Error reading source directory: ${err}`);
+                outputChannel.appendLine(`Error reading ${fileTypes} source directory: ${err}`);
                 return;
             }
             files.forEach((file) => {
-                const sourceFile = path.join(sourceDir, file);
-                const targetFile = path.join(targetDir, file);
+                const sourceFile = path.join(sourcePath, file);
+                const targetFile = path.join(targetPath, file);
                 fs.copyFile(sourceFile, targetFile, (err) => {
                     if (err) {
                         outputChannel.appendLine(`Error copying ${file}: ${err}`);
                     } else {
-                        outputChannel.appendLine(`Copied ${file} to ${targetDir}`);
+                        outputChannel.appendLine(`Copied ${file} to ${targetPath}`);
                     }
                 });
             });
         });
     }
-    copyImages();
+    copyFiles('templates', sourceDir, targetDir);
+
+    // Copy resource image files
+    // const sourceDir = path.join(resourceFolder, 'images');
+    sourceDir = path.join(context.extensionPath, 'resources', 'txt', 'deskprj', 'images');
+    targetDir = path.join(rootPath, prjFolder, 'images');
+    copyFiles('images', sourceDir, targetDir);
+    // // Assure target Dir
+    // if (!fs.existsSync(targetDir)) {
+    //     fs.mkdirSync(targetDir, { recursive: true });
+    // }
+    // // Copy all images
+    // function copyImages() {
+    //     fs.readdir(sourceDir, (err, files) => {
+    //         if (err) {
+    //             outputChannel.appendLine(`Error reading images source directory: ${err}`);
+    //             return;
+    //         }
+    //         files.forEach((file) => {
+    //             const sourceFile = path.join(sourceDir, file);
+    //             const targetFile = path.join(targetDir, file);
+    //             fs.copyFile(sourceFile, targetFile, (err) => {
+    //                 if (err) {
+    //                     outputChannel.appendLine(`Error copying ${file}: ${err}`);
+    //                 } else {
+    //                     outputChannel.appendLine(`Copied ${file} to ${targetDir}`);
+    //                 }
+    //             });
+    //         });
+    //     });
+    // }
+    // copyImages();
     outputChannel.appendLine(`Desktop project ${prjFolder} was created!`);
 }

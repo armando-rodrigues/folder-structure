@@ -56,6 +56,9 @@ All notable changes to the "folder-structure" extension will be documented in th
 * Completed  
     * Desktop Project [`implemented`]  
 
+## 1.4.0 - 2024-11-30
+* Improoved `Desktop Project` with tables  
+
 
 
 ## [Unreleased]

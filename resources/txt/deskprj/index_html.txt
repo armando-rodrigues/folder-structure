@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:;">
   <title>Match Metadata</title>
   <link rel="stylesheet" href="index.css">
-  <script src="data_structures.js"></script>
-  <script src="default_data.js"></script>
-  <script src="index.js"></script>
 </head>
 <body>
   
@@ -15,11 +13,15 @@
     <!-- Top section: Title and Select option with the list of baselines -->
     <div class="top-section">
       <!-- Select option with the list of baselines -->
-      <label for="sel_Baseline">Working Project: </label>
-      <label for="table-2-total-t2c1">Total for t2c1</label>
-      <input id="table-2-total-t2c1" type="number">
-      <label for="table-2-total-t2c6">Total for t2c6</label>
-      <input id="table-2-total-t2c6" type="checkbox" onclick="return false;">
+      <!-- <label for="sel_filter">Working Project: </label> -->
+      <div id="title"></div>
+      <div id="filter"></div>
+      <div id="total"></div>
+      <!-- <button type="button" id="finalCmd" title="Generate final files">Final Files</button> -->
+      <!-- <label for="table-2-total-t2c1">Total for t2c1</label> -->
+      <!-- <input id="table-2-total-t2c1" type="number"> -->
+      <!-- <label for="table-2-total-t2c8">Total for t2c8</label> -->
+      <!-- <input id="table-2-total-t2c8" type="checkbox" disabled> -->
     </div>
   
     <!-- Middle section: containing tabs and other elements -->
@@ -28,8 +30,8 @@
       <div class="inner-top-section">
         <!-- Tab links -->
         <div class="tab">
-          <button class="tablinks" onclick="openTab(event, 'Projects')" id="defaultOpen">Projects</button>
-          <button class="tablinks" onclick="openTab(event, 'Jira_Tasks')">Jira Tasks</button>
+          <button class="tablinks" name="Projects" id="defaultOpen">Projects</button>
+          <button class="tablinks" name="Jira_Tasks">Jira Tasks</button>
         </div>
       </div>
 
@@ -42,16 +44,18 @@
 
       <!-- Inner bottom section: command butons -->
       <div class="inner-bottom-section">
-        <!-- Command buttons for Baselines -->
+        <!-- Command buttons for table -->
         <div id="cmdProjects" class="tabCommand" name="table-1">
-          <button type="button" class="bottomCmd" title="Add new Project to the list" onclick="newRow(event)">New Project</button>
-          <button type="button" class="bottomCmd" name="table-1" title="Save the project list" onclick="getAllTablesData()">Save</button>
+          <button type="button" class="bottomCmd new" name="table-1" title="Add new Project to the list">New Project</button>
+          <button type="button" class="bottomCmd save" name="table-1" title="Save the project list">Save</button>
         </div>
 
-        <!-- Command buttons for MV Columns -->
+        <!-- Command buttons for MV table -->
         <div id="cmdJira_Tasks" class="tabCommand" name="table-2">
-          <button type="button" class="bottomCmd" title="Add new Jira Task to the list" onclick="newRow(event)">New Task</button>
-          <button type="button" class="bottomCmd" name="table-2" title="Save the Tasks list" onclick="getAllTablesData()">Save</button>
+          <button type="button" class="bottomCmd new" name="table-2" title="Add new Jira Task to the list">New Task</button>
+          <button type="button" class="bottomCmd save" name="table-2" title="Save the Tasks list">Save</button>
+          <!-- <div class="total" id="table-2-total-t2c1" style="display: none;"></div> -->
+          <!-- <div class="total" id="table-2-total-t2c6" style="display: none;"></div> -->
         </div>
           
     </div>
@@ -64,13 +68,6 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      defineStructures();
-      startDefaultData();
-      document.getElementById("defaultOpen").click();
-    });
-  </script>
-  <!-- <script src="renderer.js" defer></script> -->
+  <script src="renderer.js" defer></script>
 </body>
 </html>

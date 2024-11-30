@@ -1,9 +1,76 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { electron } = require('process');
+
+const TAB = Object.freeze({
+    TYPE_TEXT: 0,
+    TYPE_TEXT_LINES: 1,
+    TYPE_LIST: 2,
+    TYPE_CHECK: 3,
+    TYPE_LOOKUP: 4,
+    TYPE_EMAIL: 5,
+    TYPE_PASSWORD: 6,
+    TYPE_COMMANDS: 7,
+
+    CHECK_EMPTY: 0,
+    CHECK_NOT_EMPTY: 1,
+    CHECK_CHECKED: 2,
+    CHECK_NOT_CHECKED: 3,
+    CHECK_VALUE: 4,
+    CHECK_REPEAT: 5,
+    CHECK_NO_REPEAT: 6,
+
+    TEST_LESS: 0,
+    TEST_EQUAL: 1,
+    TEST_GREAT: 2,
+    
+    TEST: ['<', '==', '>'],
+
+    COLOR_RED: "red",
+    COLOR_YELLOW: "yellow",
+    COLOR_GREEN: "green",
+
+    COLOR_ON_TRUE: 0,
+    COLOR_ON_FALSE: 1,
+
+    TOT_BOOLEAN: 0,
+    TOT_RACIO: 1
+});
+
+const FILESYS = Object.freeze({
+    FOLDER_APP: path.resolve(__dirname),
+    FOLDER_CFG: path.join(__dirname, 'config'),
+    FOLDER_RES: path.join(__dirname, 'resources'),
+    FOLDER_OUT: path.join(__dirname, 'output'),
+
+    FILE_STRUC: 'appSetup_data_Structures.json',
+    FILE_DATA: 'appSetup_data.json',
+    FILE_DATA_PREF: 'appSetup_data',
+    FILE_INI: 'appSetup_default_data.json'
+});
+
+let tabStructures = [];
+let tabData = [];
+let mainWindow;
+
+/**
+ * Function to search an object for strings containing names of constants and replace them for their values
+ * @param {*} obj 
+ */
+function searchReplaceConsts(obj) {
+    for (const key in obj) {
+      if (typeof(obj[key]) === "object" && obj[key] !== null) {
+        searchReplaceConsts(obj[key]);
+      } else if (typeof(obj[key]) == "string" && obj[key] in TAB) {
+        obj[key] = TAB[obj[key]];
+      }
+    }
+}
+    
 
 function createWindow() {
-    const win = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         show: false,
@@ -15,78 +82,158 @@ function createWindow() {
         },
     });
 
-    win.loadFile('index.html');
+    ipcMain.handle('get-sel-id', async (event, id) => {
+        // console.log('CHEGUEI AQUI');
+        if (id === undefined) return;
+        if (id < 0) return;
+        // return;
+        let tabData;
+        const fPathData = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id>0?id:''}.json`);
+        let step = 'start';
+        // Read table structures and default data
+        try {
+            // Read Data
+            let tmpFilePath;
+            step = 'check_file_data';
+            if (fs.existsSync(fPathData)) {
+                tmpFilePath = fPathData;
+            } else throw new Error(`File with tables data not found in ${tmpFilePath}`);
+            step = 'read_file_data';
+            tmpTextData = fs.readFileSync(tmpFilePath, "utf-8");
+            step = 'check_data';
+            if (tmpTextData === '') throw new Error(`No data readed for tables data from ${tmpFilePath}`);
+            step = 'conv_obj_data';
+            tabData = JSON.parse(tmpTextData);
+            if (tabData === undefined) throw new Error(`No objects readed for tables data from ${tmpFilePath}`);
+        } catch(e) {
+            console.log(`ERROR on "${step}" of reading tables data: ${e}`);
+            return;
+        }
+        // Send data to the rendering process
+        // console.log(`Readed: ${JSON.stringify(tabData)}`);
+        return(tabData);
+    });
 
-    win.once('ready-to-show', () => {
-        win.show();
+    ipcMain.handle('save-all-tables', async (event, parsedData) => {
+        let id = 0;
+        if (parsedData === undefined) return;
+        if (parsedData.structure === undefined) return;
+        if (parsedData.structure.app === undefined) return;
+        if (parsedData.data === undefined) return;
+        if (parsedData.id !== undefined) {
+            id = parseInt(parsedData.id);
+            console.log('Cenas: ', id);
+        }
+        // console.log('At Main: ', JSON.stringify(data));
+        console.log('Id: ', id);
+        const fGlobalPath = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_DATA);
+        const fFilteredPath = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id}.json`);
+        if (id === 0) {
+            fs.writeFileSync(fGlobalPath, JSON.stringify(parsedData.data), 'utf-8');
+        } else {
+            let globalData = JSON.parse(JSON.stringify(parsedData.data));
+            let filteredData = JSON.parse(JSON.stringify(parsedData.data));
+            for (let tabStruc of parsedData.structure.tables) {
+                if (tabStruc === undefined) {
+                    console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+                    continue;
+                }
+                const tabName = String(tabStruc.name);
+                const colFilter = String(tabStruc.mainfilter);
+                if (tabName === '') {
+                    console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+                    continue;
+                }
+                // console.log(`Table=${tabName} :: Col Filter=${colFilter}`);
+                if (colFilter === '') {
+                    // console.log(`Sem Filtro`);
+                } else {
+                    // console.log(`Com Filtro`);
+                    for (let tab of filteredData) {
+                        if (tab.table !== tabName) continue;
+                        let dataFiltered = [];
+                        for (let row of tab.data) {
+                            if (String(row[colFilter]) === String(id)) dataFiltered.push(JSON.parse(JSON.stringify(row)));
+                        }
+                        tab.data = dataFiltered;
+                    }
+                }
+            }
+            fs.writeFileSync(fGlobalPath, JSON.stringify(globalData), 'utf-8');
+            fs.writeFileSync(fFilteredPath, JSON.stringify(filteredData), 'utf-8');
+        }
+        return parsedData;
+    });
+
+    /**
+     * Generates the Final Files
+     * CHANGE HERE THE CODE ACCORDING TO PROJECT NEEDS
+     * @returns {string} Output result message
+     */
+    ipcMain.handle('save-output', async (event, data) => {
+        if (data === undefined) return `No Final files to generate`;
+        // console.log('At Main: ', JSON.stringify(data));
+        // const fOutPath = path.join(__dirname, fileData);
+        // fs.writeFileSync(fOutPath, JSON.stringify(data), 'utf-8');
+        const outputMsg = `Final dummy files generated`;
+        return outputMsg;
+    });
+
+    mainWindow.loadFile('index.html');
+
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
     });
 
     // Quando a janela é carregada, envia os dados iniciais
     // ================================================================================
-    win.webContents.on('did-finish-load', () => {
-        let initialFormsData = {};
-        let initialFormBaselines = [];
-        // let initialFormMVCols = [];
-        let initialError = '';
-        // if (fs.existsSync(resBaselines)) initialFormBaselines = fs.readFileSync(resBaselines, 'utf-8');
-        // initialFormsData = {
-        //     initialBaselines: JSON.parse(initialFormBaselines),
-        //     Error: initialError
-        // }
+    mainWindow.webContents.on('did-finish-load', () => {
+        const fPathTabStruct = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_STRUC);
+        const fPathDefData = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_INI);
+        const fPathData = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_DATA);
+        let step = 'start';
+        // Read table structures and default data
+        try {
+            // Read structures
+            step = 'check_file_tab_struct';
+            let tmpFilePath = fPathTabStruct;
+            if (!fs.existsSync(tmpFilePath)) throw new Error(`File with tables structures not found in ${tmpFilePath}`);
+            step = 'read_file_tab_struct';
+            let tmpTextData = fs.readFileSync(tmpFilePath, "utf-8");
+            step = 'check_data_tab_struct';
+            if (tmpTextData === '') throw new Error(`No data readed for tables structures from ${tmpFilePath}`);
+            step = 'conv_obj_tab_struct';
+            tabStructures = JSON.parse(tmpTextData);
+            if (tabStructures === undefined) throw new Error(`No objects readed for tables structures from ${tmpFilePath}`);
+            // Read Data
+            step = 'check_file_data';
+            if (fs.existsSync(fPathData)) {
+                tmpFilePath = fPathData;
+                step = 'check_file_data_Def';
+            } else if (fs.existsSync(fPathDefData)) {
+                tmpFilePath = fPathDefData;
+            } else throw new Error(`File with tables data not found in ${tmpFilePath}`);
+            step = 'read_file_data';
+            tmpTextData = fs.readFileSync(tmpFilePath, "utf-8");
+            step = 'check_data';
+            if (tmpTextData === '') throw new Error(`No data readed for tables data from ${tmpFilePath}`);
+            step = 'conv_obj_data';
+            tabData = JSON.parse(tmpTextData);
+            if (tabData === undefined) throw new Error(`No objects readed for tables data from ${tmpFilePath}`);
+        } catch(e) {
+            console.log(`ERROR on "${step}" of reading tables structures and data: ${e}`);
+            return;
+        }
+        // Search and replace constants references in table structures
+        searchReplaceConsts(tabStructures);
+        if (tabStructures === undefined) throw new Error(`No valid structure for tables after constant replace in ${fPathTabStruct}`);
 
-        // // Envia os dados para o processo de renderização
-        // mainWindow.webContents.send('initial-data', initialFormsData);
+        // Envia os dados para o processo de renderização
+        // const result = {structure: tabStructures, data: tabData};
+        // console.log('Main Ini: ', result);
+        mainWindow.webContents.send('initial-data', {structure: tabStructures, data: tabData});
     });
 
-    // ipcMain.handle('dialog:openFile', async () => {
-    //     const result = await dialog.showOpenDialog({
-    //         properties: ['openFile'],
-    //         filters: [
-    //             { name: 'JSON Files', extensions: ['json'] },
-    //             { name: 'All Files', extensions: ['*'] }
-    //         ]
-    //     });
-    //     return result.filePaths[0];
-    // });
-
-    // ipcMain.handle('file:loadData', async (event, filePath) => {
-    //     return new Promise((resolve, reject) => {
-    //         fs.readFile(filePath, 'utf-8', (err, data) => {
-    //             if (err) {
-    //                 reject(err);
-    //             } else {
-    //                 try {
-    //                     const jsonData = JSON.parse(data);
-    //                     resolve(jsonData);
-    //                 } catch (parseError) {
-    //                     reject(parseError);
-    //                 }
-    //             }
-    //         });
-    //     });
-    // });
-
-    // ipcMain.handle('dialog:saveFile', async () => {
-    //     const result = await dialog.showSaveDialog({
-    //         filters: [
-    //             { name: 'JSON Files', extensions: ['json'] },
-    //             { name: 'All Files', extensions: ['*'] }
-    //         ]
-    //     });
-    //     return result.filePath;
-    // });
-
-    // ipcMain.handle('file:saveData', async (event, filePath, data) => {
-    //     return new Promise((resolve, reject) => {
-    //         fs.writeFile(filePath, data, 'utf-8', (err) => {
-    //             if (err) {
-    //                 reject(err);
-    //             } else {
-    //                 resolve();
-    //             }
-    //         });
-    //     });
-    // });
 }
 
 app.whenReady().then(createWindow);

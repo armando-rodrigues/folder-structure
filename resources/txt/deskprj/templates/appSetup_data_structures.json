@@ -1,0 +1,234 @@
+{
+    "title": "Desktop Testing App with Tables",
+    "app": "test",
+    "filter": {"name": "filter1", "title": "Select to Filter", "table": "table-1", "columnId": "t1c1", "columnDesc": "t1c2", "enabled": true},
+    "total": {
+        "title": "All OK",
+        "type": "TOT_BOOLEAN",
+        "sources": [
+            {"table": "table-2", "column": "t2c8", "enabled": false}
+        ]
+    },
+    "lookup": [],
+    "tables": [
+        {
+            "name": "table-1",
+            "title": "Table Number 1",
+            "mainfilter": "t1c1",
+            "columnList": [
+                {
+                    "name": "t1c1",
+                    "title": "Col 1",
+                    "description": "This is the first column\nThis is autoincrement",
+                    "autoincrement": true,
+                    "type": "TYPE_TEXT",
+                    "filtered": false,
+                    "writable": false
+                },
+                {
+                    "name": "t1c2",
+                    "title": "Col 2",
+                    "description": "This is the second column\nThis is a text column",
+                    "type": "TYPE_TEXT",
+                    "filtered": true,
+                    "writable": true,
+                    "default": "Please Insert something..."
+                },
+                {
+                    "name": "t1c3",
+                    "title": "Col 3",
+                    "description": "This is the third column\nThis is a multi-line text column",
+                    "type": "TYPE_TEXT_LINES",
+                    "filtered": true,
+                    "writable": true,
+                    "rows": 2,
+                    "cols": 30,
+                    "default": "Please Insert something..."
+                },
+                {
+                    "name": "t1c4",
+                    "title": "Col 4",
+                    "description": "This is the forth column\nThis is a list columns",
+                    "type": "TYPE_LIST",
+                    "source": "list1",
+                    "filtered": true,
+                    "writable": true,
+                    "default": "Please Select something..."
+                },
+                {
+                    "name": "t1c5",
+                    "title": "Col 5",
+                    "description": "This is the fifth column\nThis is check box",
+                    "type": "TYPE_CHECK",
+                    "filtered": false,
+                    "writable": true,
+                    "default": false
+                },
+                {
+                    "name": "t1c6",
+                    "title": "Col 6",
+                    "description": "This is the sixth column\nThis is the list of commands o oper the line",
+                    "type": "TYPE_COMMANDS",
+                    "filtered": false
+                }
+            ],
+            "lists": [
+                {"name": "list1", "static": true}
+            ],
+            "lookups": [],
+            "check": []
+        },
+        {
+            "name": "table-2",
+            "title": "Table Number 2",
+            "mainfilter": "t2c5",
+            "columnList": [
+                {
+                    "name": "t2c1",
+                    "title": "Col 1",
+                    "description": "This is the first column\nThis is autoincrement",
+                    "autoincrement": true,
+                    "type": "TYPE_TEXT",
+                    "filtered": false,
+                    "writable": false
+                },
+                {
+                    "name": "t2c2",
+                    "title": "Col 2",
+                    "description": "This is the second column\nThis is a text column",
+                    "type": "TYPE_TEXT",
+                    "filtered": true,
+                    "writable": true,
+                    "default": "Please Insert something..."
+                },
+                {
+                    "name": "t2c3",
+                    "title": "Col 3",
+                    "description": "This is the third column\nThis is a multi-line text column",
+                    "type": "TYPE_TEXT_LINES",
+                    "filtered": true,
+                    "writable": true,
+                    "rows": 2,
+                    "cols": 30,
+                    "default": "Please Insert something..."
+                },
+                {
+                    "name": "t2c4",
+                    "title": "Col 4",
+                    "description": "This is the forth column\nThis is a list columns",
+                    "type": "TYPE_LIST",
+                    "source": "list2",
+                    "filtered": true,
+                    "writable": true,
+                    "default": "Please Select something..."
+                },
+                {
+                    "name": "t2c5",
+                    "title": "Col 5",
+                    "description": "This is the fifth column\nThis is a list columns",
+                    "type": "TYPE_LIST",
+                    "source": "list3",
+                    "filtered": true,
+                    "writable": true,
+                    "default": "Please Select something..."
+                },
+                {
+                    "name": "t2c6",
+                    "title": "Col 6",
+                    "description": "This is the sixth column\nThis is a text column",
+                    "type": "TYPE_LOOKUP",
+                    "lookup": "lkp1",
+                    "filtered": true,
+                    "writable": false
+                },
+                {
+                    "name": "t2c7",
+                    "title": "Col 7",
+                    "description": "This is the seventh column\nThis is check box\nTo check duplicates",
+                    "type": "TYPE_CHECK",
+                    "filtered": false,
+                    "writable": false,
+                    "default": true
+                },
+                {
+                    "name": "t2c8",
+                    "title": "Col 8",
+                    "description": "This is the eighth column\nThis is check box\nto check OK",
+                    "type": "TYPE_CHECK",
+                    "filtered": false,
+                    "writable": false,
+                    "default": false
+                },
+                {
+                    "name": "t2c9",
+                    "title": "Col 9",
+                    "description": "This is the nineth column\nThis is the list of commands o oper the line",
+                    "type": "TYPE_COMMANDS",
+                    "filtered": false
+                }
+            ],
+            "lists": [
+                {"name": "list2", "static": false, "table": "table-1", "column": "t1c2"},
+                {"name": "list3", "static": false, "table": "table-1", "column": "t1c1"}
+            ],
+            "lookups": [
+                {"name": "lkp1", "search": "t2c5", "table": "table-1", "searched": "t1c1", "return": "t1c2"}
+            ],
+            "check": [
+                {
+                    "in": [
+                        {
+                            "col": "t2c2",
+                            "check": "CHECK_REPEAT"
+                        }
+                    ],
+                    "out": {
+                        "col": "t2c7",
+                        "color": "COLOR_RED",
+                        "change": "COLOR_ON_TRUE"
+                    }
+                },
+                {
+                    "in": [
+                        {
+                            "col": "t2c1",
+                            "check": "CHECK_VALUE",
+                            "test": "TEST_GREAT",
+                            "val": 0
+                        },
+                        {
+                            "col": "t2c2",
+                            "check": "CHECK_NOT_EMPTY"
+                        },
+                        {
+                            "col": "t2c3",
+                            "check": "CHECK_NOT_EMPTY"
+                        },
+                        {
+                            "col": "t2c4",
+                            "check": "CHECK_NOT_EMPTY"
+                        },
+                        {
+                            "col": "t2c6",
+                            "check": "CHECK_NOT_EMPTY"
+                        },
+                        {
+                            "col": "t2c7",
+                            "check": "CHECK_NOT_CHECKED"
+                        }
+                    ],
+                    "out": {
+                        "col": "t2c8",
+                        "color": "COLOR_RED",
+                        "change": "COLOR_ON_FALSE"
+                    }
+                }
+            ],
+            "total": [
+                "t2c1",
+                "t2c7",
+                "t2c8"
+            ]
+        }
+    ]
+}

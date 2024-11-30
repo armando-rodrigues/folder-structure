@@ -1,16 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('electron', {
-    // openFile: async () => {
-    //     return ipcRenderer.invoke('dialog:openFile');
-    // },
-    // loadDataFromFile: async (filePath) => {
-    //     return ipcRenderer.invoke('file:loadData', filePath);
-    // },
-    // saveFile: async () => {
-    //     return ipcRenderer.invoke('dialog:saveFile');
-    // },
-    // saveDataToFile: async (filePath, data) => {
-    //     return ipcRenderer.invoke('file:saveData', filePath, data);
-    // }
+contextBridge.exposeInMainWorld('electronAPI', {
+    // Function to send initial data to forms
+    sendInitialData: (callback) => ipcRenderer.on('initial-data', (event, initialParsed) => callback(initialParsed)),
+    getSelection: (data) => ipcRenderer.invoke('get-sel-id', data),
+    saveAllTablesToFile: (data) => ipcRenderer.invoke('save-all-tables', data),
+    saveOutput: (data) => ipcRenderer.invoke('save-output', data)
 });

@@ -129,6 +129,50 @@
   border: 1px solid #ccc;
   border-left: none;
   border-right: none;
+  /* display: inline-block; */
+  align-items: center;
+}
+
+.total {
+  align-self: flex-end;
+  /* position: relative; */
+  display: inline-block;
+  /* width: 50px; */
+  /* padding: 0px; */
+  padding-left: 8px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 0;
+  border: none;
+}
+
+input:not(:checked):disabled {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1px solid #aaa;
+  border-radius: 2px;
+  position: relative;
+  color: blue;
+}
+
+input:checked:disabled {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  position: relative;
+  background-color: blue;
+}
+
+input:checked:disabled::before {
+  color: white;
+  content: "✔";
+  font-size: 10px;
+  font-style: italic;
+  font-weight: bold;
+  position: absolute;
 }
 
 /* Bottom command buttons to afect lists */
@@ -193,11 +237,6 @@ th span {
   z-index: 1;
 }
 
-/* Optional: to hide scroll bar on thead */
-/* thead {
-  width: calc(100% - 1em);
-} */
-
 /* text to enter data in cells of tables */
 input[type="text"] {
   width: 100%;
@@ -217,8 +256,6 @@ textarea {
 }
 
 .CmdUp {
-  /* border: none;
-  background-color: transparent; */
   cursor: pointer;
 }
 
@@ -228,8 +265,6 @@ textarea {
 }
 
 .CmdDwn {
-  /* border: none;
-  background-color: transparent; */
   cursor: pointer;
 }
 
@@ -239,8 +274,6 @@ textarea {
 }
 
 .CmdDel {
-  /* border: none;
-  background-color: transparent; */
   cursor: pointer;
 }
 
