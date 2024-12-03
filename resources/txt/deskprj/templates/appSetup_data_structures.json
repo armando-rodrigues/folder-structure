@@ -78,7 +78,13 @@
                 {"name": "list1", "static": true}
             ],
             "lookups": [],
-            "check": []
+            "check": [],
+            "commands": [
+                {"id": "new", "label": "New Project", "description": "Add new Project to the list", "function": "newRow", "parameters": ""},
+                {"id": "save", "label": "Save", "description": "Save the project list", "function": "saveAllTables", "parameters": ""},
+                {"id": "read", "label": "Load JSON", "description": "Load the task list from JSON resource File", "function": "getResTab", "parameters": ""},
+                {"id": "readAll", "label": "Load JSON All", "description": "Load All Tables from JSON resource files", "function": "getResAll", "parameters": ""}
+            ]
         },
         {
             "name": "table-2",
@@ -232,6 +238,13 @@
                 "t2c1",
                 "t2c7",
                 "t2c8"
+            ],
+            "commands": [
+                {"id": "new", "label": "New Task", "description": "Add new Jira Task to the list", "function": "newRow", "parameters": ""},
+                {"id": "save", "label": "Save", "description": "Save the Tasks list", "function": "saveAllTables", "parameters": ""},
+                {"id": "read", "label": "Load JSON", "description": "Load the task list from JSON resource File", "function": "getResTab", "parameters": ""},
+                {"id": "readAll", "label": "Load JSON All", "description": "Load All Tables from JSON resource files", "function": "getResAll", "parameters": ""},
+                {"id": "readXlsAll", "label": "Load Excell All", "description": "Select Excell File and Load All Tables from it", "function": "getXlsAll", "parameters": ""}
             ]
         }
     ]

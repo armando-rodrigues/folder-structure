@@ -64,6 +64,10 @@ All notable changes to the "folder-structure" extension will be documented in th
     * Main HTML structure build by app according to data structure  
     * No need to edit HTML for each table  
 
+## 1.4.2 - 2024-12-03
+* Improoved `Desktop Project`:  
+    * Command buttons configurated in data structure  
+
 
 
 ## [Unreleased]

@@ -3,6 +3,9 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
     // Function to send initial data to forms
     sendInitialData: (callback) => ipcRenderer.on('initial-data', (event, initialParsed) => callback(initialParsed)),
+    loadResource: (data) => ipcRenderer.invoke('get-resource', data),
+    loadAllResource: (data) => ipcRenderer.invoke('get-all-resources', data),
+    loadAllFromExcel: (data) => ipcRenderer.invoke('get-all-from-excel', data),
     getSelection: (data) => ipcRenderer.invoke('get-sel-id', data),
     saveAllTablesToFile: (data) => ipcRenderer.invoke('save-all-tables', data),
     saveOutput: (data) => ipcRenderer.invoke('save-output', data)

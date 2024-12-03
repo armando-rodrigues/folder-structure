@@ -248,7 +248,8 @@ document.addEventListener('DOMContentLoaded', () =>  {
                 else iTot[tot] = values.reduce((sum, currentVal) => {return (parseFloat(sum) + parseFloat(currentVal));}, 0);
                 totals.push(iTot);
             }
-            myData.find(element => element.table == tab.name).total = totals;
+            let thisTabData = myData.find(element => element.table == tab.name);
+            if (thisTabData) thisTabData.setAttribute("total", totals);
             // Write totals to environment objects if exist
             for (let tot of totals) {
                 const key = Object.keys(tot)[0];
@@ -280,91 +281,270 @@ document.addEventListener('DOMContentLoaded', () =>  {
         } // Search all tables definition
         defineTopTotal();
     }
-        
-    // Action for New Row button
-    // ================================================================================
-    function newRow(evt) {
-        // Get table id
-        // const xtTabName = evt.target.parentNode.getAttribute("name");
-        const xtTabName = evt.target.getAttribute("name");
-        if (xtTabName === undefined) return;
-        // Get Lists from Data
-        let xtDtLists = [];
-        // const xtDtLists = myData.find(element => element.table === xtTabName)?.lists;
-        const xtLists = myData.find(element => element.table === xtTabName)?.lists;
-        for (let list of xtLists) {
-            let lst = document.createElement('datalist');
-            lst.id = list.name;
-            for (let item of list.list) {
-              let opt = document.createElement('option');
-              opt.value = item;
-              lst.appendChild(opt);
+
+    /**
+     * Definition of Command Button Functions
+     */
+    const commandMap = {
+        newRow: (evt) => {
+            // console.log('Attribute Name: ', evt.target.getAttribute("name"));
+            // Get table id
+            // const xtTabName = evt.target.parentNode.getAttribute("name");
+            const xtTabName = evt.target.getAttribute("name");
+            if (xtTabName === undefined) return;
+            // Get Lists from Data
+            let xtDtLists = [];
+            // const xtDtLists = myData.find(element => element.table === xtTabName)?.lists;
+            const xtLists = myData.find(element => element.table === xtTabName)?.lists;
+            for (let list of xtLists) {
+                let lst = document.createElement('datalist');
+                lst.id = list.name;
+                for (let item of list.list) {
+                  let opt = document.createElement('option');
+                  opt.value = item;
+                  lst.appendChild(opt);
+                }
+                xtDtLists.push(lst);
             }
-            xtDtLists.push(lst);
-        }
-        // Get tbody of table (by id)
-        const tBody = document.getElementById(xtTabName);
-        if (tBody === undefined) return;
-        const xtNextRow = parseInt(tBody.rows.length)+1;
-        // Create tag for new line
-        const xtTab = myTables.find(element => element.name === xtTabName);
-        if (xtTab === undefined) return;
-        if (xtTab.columnList.length < 1) return;
-        const newLine = document.createElement('tr');
-        for (let col of xtTab.columnList) {
-            const xtCol = document.createElement('td');
-            switch(col.type) {
-                case TAB.TYPE_TEXT:
-                    xtCol.innerHTML=`<input type="text" class="${col.name}" value="${col.autoincrement?xtNextRow:''}" placeholder="${col.default}" title="${col.description}"${!col.writable?' readonly':''}>`;
-                    break;
-                case TAB.TYPE_TEXT_LINES:
-                    xtCol.innerHTML=`<textarea type="text" class="${col.name}" rows="${col.rows}" cols="${col.cols}" placeholder="${col.default}" title="${col.description}"${!col.writable?' readonly':''}></textarea>`;
-                    break;
-                case TAB.TYPE_CHECK:
-                    xtCol.innerHTML=`<input type="checkbox" class="${col.name}" title="${col.description}"${col.default?' checked':''}${!col.writable?' disabled':''}>`;
-                    break;
-                case TAB.TYPE_LIST:
-                    const xtTmpList = xtDtLists.find(element => element.id === col.source);
-                    if (xtTmpList === undefined) continue;
-                    xtCol.innerHTML=`<input type="text" class="${col.name}" list="${xtTmpList.id === undefined?'':xtTmpList.id}" placeholder="${col.default}" value="" title="${col.description}"${!col.writable?' readonly':''}>`;
-                    xtCol.appendChild(xtTmpList);
-                    break;
-                case TAB.TYPE_LOOKUP:
-                    xtCol.innerHTML=`<input type="text" class="${col.name}" value="" title="${col.description}"${!col.writable?' readonly':''}>`;
-                    break;
-                case TAB.TYPE_COMMANDS:
-                    let bt01 = document.createElement('button');
-                    let bt02 = document.createElement('button');
-                    let bt03 = document.createElement('button');
-                    let img01 = document.createElement('img');
-                    let img02 = document.createElement('img');
-                    let img03 = document.createElement('img');
-                    bt01.className = "CmdUp";
-                    img01.src = "images/arrow-up.png";
-                    img01.alt = "Move Line Up";
-                    bt02.className = "CmdDwn";
-                    img02.src = "images/arrow-down.png";
-                    img02.alt = "Move Line Down";
-                    bt03.className = "CmdDel";
-                    img03.src = "images/delete.webp";
-                    img03.alt = "Delete Line";
-                    bt01.alt = "Move Line Up";
-                    bt01.addEventListener('click', (event) => {moveUp(newLine);});
-                    bt01.appendChild(img01);
-                    xtCol.appendChild(bt01);
-                    bt02.appendChild(img02);
-                    bt02.addEventListener('click', (event) => {moveDwn(newLine);});
-                    xtCol.appendChild(bt02);
-                    bt03.appendChild(img03);
-                    bt03.addEventListener('click', (event) => {deleteRow(newLine);});
-                    xtCol.appendChild(bt03);
-                    break;
+            // Get tbody of table (by id)
+            const tBody = document.getElementById(xtTabName);
+            if (tBody === undefined) return;
+            const xtNextRow = parseInt(tBody.rows.length)+1;
+            // Create tag for new line
+            const xtTab = myTables.find(element => element.name === xtTabName);
+            if (xtTab === undefined) return;
+            if (xtTab.columnList.length < 1) return;
+            let filterColumn = xtTab.mainfilter;
+            if (filterColumn === undefined) filterColumn = '';
+            // const idFilter = document.get
+            let filterId = 0;
+            if (myStructures.filter.enabled) {
+                // writeMsg('TEST');
+                try {
+                    const filterContainer = document.querySelector('#filter');
+                    const filter = filterContainer.querySelector(`#${myStructures.filter.name}`);
+                    filterId = parseInt(filter.value);
+                    writeMsg(`Filter: ${filterId}`);
+                } catch(e) {
+                    writeMsg(`Error on getting filter: ${e}`);
+                }
             }
-            newLine.appendChild(xtCol);
+            const newLine = document.createElement('tr');
+            for (let col of xtTab.columnList) {
+                const xtCol = document.createElement('td');
+                switch(col.type) {
+                    case TAB.TYPE_TEXT:
+                        xtCol.innerHTML=`<input type="text" class="${col.name}" value="${col.autoincrement?xtNextRow:''}" placeholder="${col.default}" title="${col.description}"${!col.writable?' readonly':''}>`;
+                        break;
+                    case TAB.TYPE_TEXT_LINES:
+                        xtCol.innerHTML=`<textarea type="text" class="${col.name}" rows="${col.rows}" cols="${col.cols}" placeholder="${col.default}" title="${col.description}"${!col.writable?' readonly':''}></textarea>`;
+                        break;
+                    case TAB.TYPE_CHECK:
+                        xtCol.innerHTML=`<input type="checkbox" class="${col.name}" title="${col.description}"${col.default?' checked':''}${!col.writable?' disabled':''}>`;
+                        break;
+                    case TAB.TYPE_LIST:
+                        const xtTmpList = xtDtLists.find(element => element.id === col.source);
+                        if (xtTmpList === undefined) continue;
+                        xtCol.innerHTML=`<input type="text" class="${col.name}" list="${xtTmpList.id === undefined?'':xtTmpList.id}" placeholder="${col.default}" value="" title="${col.description}"${!col.writable?' readonly':''}>`;
+                        xtCol.appendChild(xtTmpList);
+                        break;
+                    case TAB.TYPE_LOOKUP:
+                        xtCol.innerHTML=`<input type="text" class="${col.name}" value="" title="${col.description}"${!col.writable?' readonly':''}>`;
+                        break;
+                    case TAB.TYPE_COMMANDS:
+                        let bt01 = document.createElement('button');
+                        let bt02 = document.createElement('button');
+                        let bt03 = document.createElement('button');
+                        let img01 = document.createElement('img');
+                        let img02 = document.createElement('img');
+                        let img03 = document.createElement('img');
+                        bt01.className = "CmdUp";
+                        img01.src = "images/arrow-up.png";
+                        img01.alt = "Move Line Up";
+                        bt02.className = "CmdDwn";
+                        img02.src = "images/arrow-down.png";
+                        img02.alt = "Move Line Down";
+                        bt03.className = "CmdDel";
+                        img03.src = "images/delete.webp";
+                        img03.alt = "Delete Line";
+                        bt01.alt = "Move Line Up";
+                        bt01.addEventListener('click', (event) => {moveUp(newLine);});
+                        bt01.appendChild(img01);
+                        xtCol.appendChild(bt01);
+                        bt02.appendChild(img02);
+                        bt02.addEventListener('click', (event) => {moveDwn(newLine);});
+                        xtCol.appendChild(bt02);
+                        bt03.appendChild(img03);
+                        bt03.addEventListener('click', (event) => {deleteRow(newLine);});
+                        xtCol.appendChild(bt03);
+                        break;
+                }
+                newLine.appendChild(xtCol);
+            }
+            // Add new line to table body
+            tBody.appendChild(newLine);
+        }, saveAllTables: async (event) => {
+            console.log('Save All Tables');
+            getAllTablesData();
+            if (myData === undefined) {
+                writeMsg('No Data to save!');
+                return;
+            }
+            if (myData.length < 1) {
+                writeMsg('No Data to save!');
+                return;
+            }
+            // Recreate lists
+            for (let tStruc of myTables) {
+                for (let lst of tStruc.lists) {
+                    if (!lst.static) {
+                        // writeMsg(`List: ${JSON.stringify(lst)}`, true);
+                        const tabSource = myData.find(tab => tab.table === lst.table);
+                        if (tabSource === undefined) continue;
+                        let newList = [];
+                        // console.log(JSON.stringify(tabSource));
+                        for (let line of tabSource.data) {
+                            if (line[lst.column] === undefined) continue;
+                            if (line[lst.column] == '') continue;
+                            newList.push(line[lst.column]);
+                        }
+                        for (let iTabD in myData) {
+                            if (myData[iTabD].table !== tStruc.name) continue;
+                            for (let iLstD in myData[iTabD].lists) {
+                                if (myData[iTabD].lists[iLstD].name !== lst.name) continue;
+                                myData[iTabD].lists[iLstD].list = newList;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            // Check if filter is activated
+            let filterId = 0;
+            if (myStructures.filter.enabled) {
+                // writeMsg('TEST');
+                try {
+                    const filterContainer = document.querySelector('#filter');
+                    const filter = filterContainer.querySelector(`#${myStructures.filter.name}`);
+                    filterId = parseInt(filter.value);
+                    writeMsg(`Filter: ${filterId}`);
+                } catch(e) {
+                    writeMsg(`Error on getting filter: ${e}`);
+                }
+            }
+            // Save data to file
+            let response = await window.electronAPI.saveAllTablesToFile({ structure: myStructures, data: myData, id: filterId });
+            // console.log('Res: ', JSON.stringify(response));
+            if (response === undefined) {
+                writeMsg(`No data saved!`);
+                return;
+            }
+            if (response.length < 1) {
+                writeMsg(`No data saved!`);
+                return;
+            }
+            myData = JSON.parse(JSON.stringify(response.data));
+            loadAllData;
+            console.log('Received: ', myData);
+        }, getResTab: async (event) => {
+            console.log('Reading resources for table: ', event.target.getAttribute('name'));
+            const thisTable = await window.electronAPI.loadResource(event.target.getAttribute('name'));
+            console.log('Table=', thisTable);
+        }, getResAll: async (event) => {
+            console.log('Reading resources for all tables...');
+            const thisTable = await window.electronAPI.loadAllResource(event.target.getAttribute('name'));
+            console.log('Table=', thisTable);
+        }, getXlsAll: async (event) => {
+            console.log('Reading Excell for all tables...');
+            const thisTable = await window.electronAPI.loadAllFromExcel(event.target.getAttribute('name'));
+            console.log('Table=', thisTable);
         }
-        // Add new line to table body
-        tBody.appendChild(newLine);
-    }
+    };
+
+    // // Action for New Row button
+    // // ================================================================================
+    // function newRow(evt) {
+    //     // Get table id
+    //     // const xtTabName = evt.target.parentNode.getAttribute("name");
+    //     const xtTabName = evt.target.getAttribute("name");
+    //     if (xtTabName === undefined) return;
+    //     // Get Lists from Data
+    //     let xtDtLists = [];
+    //     // const xtDtLists = myData.find(element => element.table === xtTabName)?.lists;
+    //     const xtLists = myData.find(element => element.table === xtTabName)?.lists;
+    //     for (let list of xtLists) {
+    //         let lst = document.createElement('datalist');
+    //         lst.id = list.name;
+    //         for (let item of list.list) {
+    //           let opt = document.createElement('option');
+    //           opt.value = item;
+    //           lst.appendChild(opt);
+    //         }
+    //         xtDtLists.push(lst);
+    //     }
+    //     // Get tbody of table (by id)
+    //     const tBody = document.getElementById(xtTabName);
+    //     if (tBody === undefined) return;
+    //     const xtNextRow = parseInt(tBody.rows.length)+1;
+    //     // Create tag for new line
+    //     const xtTab = myTables.find(element => element.name === xtTabName);
+    //     if (xtTab === undefined) return;
+    //     if (xtTab.columnList.length < 1) return;
+    //     const newLine = document.createElement('tr');
+    //     for (let col of xtTab.columnList) {
+    //         const xtCol = document.createElement('td');
+    //         switch(col.type) {
+    //             case TAB.TYPE_TEXT:
+    //                 xtCol.innerHTML=`<input type="text" class="${col.name}" value="${col.autoincrement?xtNextRow:''}" placeholder="${col.default}" title="${col.description}"${!col.writable?' readonly':''}>`;
+    //                 break;
+    //             case TAB.TYPE_TEXT_LINES:
+    //                 xtCol.innerHTML=`<textarea type="text" class="${col.name}" rows="${col.rows}" cols="${col.cols}" placeholder="${col.default}" title="${col.description}"${!col.writable?' readonly':''}></textarea>`;
+    //                 break;
+    //             case TAB.TYPE_CHECK:
+    //                 xtCol.innerHTML=`<input type="checkbox" class="${col.name}" title="${col.description}"${col.default?' checked':''}${!col.writable?' disabled':''}>`;
+    //                 break;
+    //             case TAB.TYPE_LIST:
+    //                 const xtTmpList = xtDtLists.find(element => element.id === col.source);
+    //                 if (xtTmpList === undefined) continue;
+    //                 xtCol.innerHTML=`<input type="text" class="${col.name}" list="${xtTmpList.id === undefined?'':xtTmpList.id}" placeholder="${col.default}" value="" title="${col.description}"${!col.writable?' readonly':''}>`;
+    //                 xtCol.appendChild(xtTmpList);
+    //                 break;
+    //             case TAB.TYPE_LOOKUP:
+    //                 xtCol.innerHTML=`<input type="text" class="${col.name}" value="" title="${col.description}"${!col.writable?' readonly':''}>`;
+    //                 break;
+    //             case TAB.TYPE_COMMANDS:
+    //                 let bt01 = document.createElement('button');
+    //                 let bt02 = document.createElement('button');
+    //                 let bt03 = document.createElement('button');
+    //                 let img01 = document.createElement('img');
+    //                 let img02 = document.createElement('img');
+    //                 let img03 = document.createElement('img');
+    //                 bt01.className = "CmdUp";
+    //                 img01.src = "images/arrow-up.png";
+    //                 img01.alt = "Move Line Up";
+    //                 bt02.className = "CmdDwn";
+    //                 img02.src = "images/arrow-down.png";
+    //                 img02.alt = "Move Line Down";
+    //                 bt03.className = "CmdDel";
+    //                 img03.src = "images/delete.webp";
+    //                 img03.alt = "Delete Line";
+    //                 bt01.alt = "Move Line Up";
+    //                 bt01.addEventListener('click', (event) => {moveUp(newLine);});
+    //                 bt01.appendChild(img01);
+    //                 xtCol.appendChild(bt01);
+    //                 bt02.appendChild(img02);
+    //                 bt02.addEventListener('click', (event) => {moveDwn(newLine);});
+    //                 xtCol.appendChild(bt02);
+    //                 bt03.appendChild(img03);
+    //                 bt03.addEventListener('click', (event) => {deleteRow(newLine);});
+    //                 xtCol.appendChild(bt03);
+    //                 break;
+    //         }
+    //         newLine.appendChild(xtCol);
+    //     }
+    //     // Add new line to table body
+    //     tBody.appendChild(newLine);
+    // }
 
 
     /**
@@ -526,30 +706,50 @@ document.addEventListener('DOMContentLoaded', () =>  {
             structMidInner.appendChild(structContent);
             // Bottom Commands Structure
             const structCmd = document.createElement('div');
-            const cmdNew = document.createElement('button');
-            const cmdSave = document.createElement('button');
+            // const cmdNew = document.createElement('button');
+            // const cmdSave = document.createElement('button');
             structCmd.id=`cmd${tab.home}`;
             structCmd.className="tabCommand";
             structCmd.name=tab.name;
-            // Button New
-            cmdNew.type="button";
-            cmdNew.className="bottomCmd new";
-            cmdNew.name=tab.name;
-            cmdNew.title=`Add new ${tab.home} to the list`;
-            cmdNew.innerHTML=`New ${tab.home}`;
-            structCmd.appendChild(cmdNew);
-            // Button Save
-            cmdSave.type="button";
-            cmdSave.className="bottomCmd save";
-            cmdSave.name=tab.name;
-            cmdSave.title=`Save the ${tab.home} list`;
-            cmdSave.innerHTML=`Save`;
-            structCmd.appendChild(cmdSave);
+            // Buttons
+            for (let cmd of tab.commands) {
+                const cmdButton = document.createElement('button');
+                cmdButton.type="button";
+                cmdButton.className=`bottomCmd ${cmd.id}`;
+                cmdButton.name=tab.name;
+                cmdButton.title=cmd.description;
+                cmdButton.innerHTML=cmd.label;
+                structCmd.appendChild(cmdButton);
+                // cmdButton.addEventListener("click", (event) => {newRow(event);});
+                cmdButton.addEventListener("click", async (event) => {
+                    // newRow(event);
+                    if (commandMap[cmd.function]) {
+                        if (cmd.parameters !== '') await commandMap[cmd.function](cmd.parameters, event);
+                        else await commandMap[cmd.function](event);
+                    } else {
+                        console.error('ERROR: Not foud function: ', cmd.function);
+                    }
+                });
+            }
+            // // Button New
+            // cmdNew.type="button";
+            // cmdNew.className="bottomCmd new";
+            // cmdNew.name=tab.name;
+            // cmdNew.title=`Add new ${tab.home} to the list`;
+            // cmdNew.innerHTML=`New ${tab.home}`;
+            // structCmd.appendChild(cmdNew);
+            // // Button Save
+            // cmdSave.type="button";
+            // cmdSave.className="bottomCmd save";
+            // cmdSave.name=tab.name;
+            // cmdSave.title=`Save the ${tab.home} list`;
+            // cmdSave.innerHTML=`Save`;
+            // structCmd.appendChild(cmdSave);
             structBotInner.appendChild(structCmd);
         }
         document.querySelectorAll('.tablinks').forEach(element => {element.addEventListener("click", (event) => {openTab(event);});});
-        document.querySelectorAll('.bottomCmd.new').forEach(element => {element.addEventListener("click", (event) => {newRow(event);})});
-        document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {saveAllTables();})});
+        // document.querySelectorAll('.bottomCmd.new').forEach(element => {element.addEventListener("click", (event) => {newRow(event);})});
+        // document.querySelectorAll('.bottomCmd.save').forEach(element => {element.addEventListener("click", (event) => {saveAllTables();})});
         document.getElementById('defaultOpen').click();
         return true;
     }
@@ -861,12 +1061,13 @@ document.addEventListener('DOMContentLoaded', () =>  {
             idSelected='0';
             txtSelected='All';
         }
-        writeMsg(`Selected Id=${idSelected} (${txtSelected})`);
+        writeMsg(`Selected Id=${idSelected} (${txtSelected})`, true);
         mySelectedData = await window.electronAPI.getSelection(idSelected);
         if (mySelectedData === undefined) {
             writeMsg(`Error on loading file for ${idSelected} (${txtSelected})`);
             return;
         }
+        console.log('Selected Data: ', mySelectedData);
         for (let tab of myTables) {
             const xtTarget = document.querySelector(`.tabcontent[name="${tab.name}"]`);
             const xtTBody = document.querySelector(`#${tab.name}`);
@@ -1216,69 +1417,69 @@ document.addEventListener('DOMContentLoaded', () =>  {
         // console.log(myData);
     }
 
-    async function saveAllTables() {
-        getAllTablesData();
-        if (myData === undefined) {
-            writeMsg('No Data to save!');
-            return;
-        }
-        if (myData.length < 1) {
-            writeMsg('No Data to save!');
-            return;
-        }
-        // Recreate lists
-        for (let tStruc of myTables) {
-            for (let lst of tStruc.lists) {
-                if (!lst.static) {
-                    // writeMsg(`List: ${JSON.stringify(lst)}`, true);
-                    const tabSource = myData.find(tab => tab.table === lst.table);
-                    if (tabSource === undefined) continue;
-                    let newList = [];
-                    // console.log(JSON.stringify(tabSource));
-                    for (let line of tabSource.data) {
-                        if (line[lst.column] === undefined) continue;
-                        if (line[lst.column] == '') continue;
-                        newList.push(line[lst.column]);
-                    }
-                    for (let iTabD in myData) {
-                        if (myData[iTabD].table !== tStruc.name) continue;
-                        for (let iLstD in myData[iTabD].lists) {
-                            if (myData[iTabD].lists[iLstD].name !== lst.name) continue;
-                            myData[iTabD].lists[iLstD].list = newList;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        // Check if filter is activated
-        let filterId = 0;
-        if (myStructures.filter.enabled) {
-            writeMsg('TEST');
-            try {
-                const filterContainer = document.querySelector('#filter');
-                const filter = filterContainer.querySelector(`#${myStructures.filter.name}`);
-                filterId = parseInt(filter.value);
-                writeMsg(`Filter: ${filterId}`);
-            } catch(e) {
-                writeMsg(`Error on getting filter: ${e}`);
-            }
-        }
-        // Save data to file
-        let response = await window.electronAPI.saveAllTablesToFile({ structure: myStructures, data: myData, id: filterId });
-        // console.log('Res: ', JSON.stringify(response));
-        if (response === undefined) {
-            writeMsg(`No data saved!`);
-            return;
-        }
-        if (response.length < 1) {
-            writeMsg(`No data saved!`);
-            return;
-        }
-        myData = JSON.parse(JSON.stringify(response.data));
-        loadAllData;
-        console.log('Received: ', myData);
-    }
+    // async function saveAllTables() {
+    //     getAllTablesData();
+    //     if (myData === undefined) {
+    //         writeMsg('No Data to save!');
+    //         return;
+    //     }
+    //     if (myData.length < 1) {
+    //         writeMsg('No Data to save!');
+    //         return;
+    //     }
+    //     // Recreate lists
+    //     for (let tStruc of myTables) {
+    //         for (let lst of tStruc.lists) {
+    //             if (!lst.static) {
+    //                 // writeMsg(`List: ${JSON.stringify(lst)}`, true);
+    //                 const tabSource = myData.find(tab => tab.table === lst.table);
+    //                 if (tabSource === undefined) continue;
+    //                 let newList = [];
+    //                 // console.log(JSON.stringify(tabSource));
+    //                 for (let line of tabSource.data) {
+    //                     if (line[lst.column] === undefined) continue;
+    //                     if (line[lst.column] == '') continue;
+    //                     newList.push(line[lst.column]);
+    //                 }
+    //                 for (let iTabD in myData) {
+    //                     if (myData[iTabD].table !== tStruc.name) continue;
+    //                     for (let iLstD in myData[iTabD].lists) {
+    //                         if (myData[iTabD].lists[iLstD].name !== lst.name) continue;
+    //                         myData[iTabD].lists[iLstD].list = newList;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // Check if filter is activated
+    //     let filterId = 0;
+    //     if (myStructures.filter.enabled) {
+    //         writeMsg('TEST');
+    //         try {
+    //             const filterContainer = document.querySelector('#filter');
+    //             const filter = filterContainer.querySelector(`#${myStructures.filter.name}`);
+    //             filterId = parseInt(filter.value);
+    //             writeMsg(`Filter: ${filterId}`);
+    //         } catch(e) {
+    //             writeMsg(`Error on getting filter: ${e}`);
+    //         }
+    //     }
+    //     // Save data to file
+    //     let response = await window.electronAPI.saveAllTablesToFile({ structure: myStructures, data: myData, id: filterId });
+    //     // console.log('Res: ', JSON.stringify(response));
+    //     if (response === undefined) {
+    //         writeMsg(`No data saved!`);
+    //         return;
+    //     }
+    //     if (response.length < 1) {
+    //         writeMsg(`No data saved!`);
+    //         return;
+    //     }
+    //     myData = JSON.parse(JSON.stringify(response.data));
+    //     loadAllData;
+    //     console.log('Received: ', myData);
+    // }
 
     async function finalOutput() {
         const returned = await window.electronAPI.saveOutput({structure: myStructures, data: myData});

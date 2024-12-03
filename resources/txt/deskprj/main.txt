@@ -82,38 +82,63 @@ function createWindow() {
         },
     });
 
+    /**
+     * Reag filtered data from config file
+     * @param {event} event - event from target object
+     * @param {number} id - select id (0 = All - not filtered)
+     * @returns {[]} JSON Object with all tables data
+     */
     ipcMain.handle('get-sel-id', async (event, id) => {
         // console.log('CHEGUEI AQUI');
         if (id === undefined) return;
         if (id < 0) return;
         // return;
-        let tabData;
-        const fPathData = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id>0?id:''}.json`);
+        let tabData = [];
+        const fPathData = [];
+        fPathData.push(path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA}`));
+        if (id > 0) fPathData.push(path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id>0?id:''}.json`));
+        // const fPathGlobalData = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA}.json`);
+        // const fPathData = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id>0?id:''}.json`);
         let step = 'start';
-        // Read table structures and default data
+        // Read table data
         try {
-            // Read Data
-            let tmpFilePath;
-            step = 'check_file_data';
-            if (fs.existsSync(fPathData)) {
-                tmpFilePath = fPathData;
-            } else throw new Error(`File with tables data not found in ${tmpFilePath}`);
-            step = 'read_file_data';
-            tmpTextData = fs.readFileSync(tmpFilePath, "utf-8");
-            step = 'check_data';
-            if (tmpTextData === '') throw new Error(`No data readed for tables data from ${tmpFilePath}`);
-            step = 'conv_obj_data';
-            tabData = JSON.parse(tmpTextData);
+            for (let tmpFilePath of fPathData) {
+                step = 'check_file_data';
+                if (!fs.existsSync(tmpFilePath)) throw new Error(`File with tables data not found in ${tmpFilePath}`);
+                step = 'read_file_data';
+                const tmpTextData = await fs.readFileSync(tmpFilePath, "utf-8");
+                step = 'check_data';
+                if (tmpTextData === undefined) throw new Error(`No data readed for tables data from ${tmpFilePath}`);
+                if (tmpTextData.trim() === '') throw new Error(`No data readed for tables data from ${tmpFilePath}`);
+                // console.log('tmpTextData: ', tmpTextData);
+                step = 'conv_obj_data';
+                const tmpTabData = await JSON.parse(tmpTextData);
+                step = 'check_obj_data';
+                if (tmpTabData === undefined) throw new Error(`No objects readed for tables data from ${tmpFilePath}`);
+                // console.log('JSON: ', JSON.stringify(tmpTabData));
+                step = 'push_obj_data';
+                for (let tabDt of tmpTabData) {
+                    const addedTab = await tabData.find(t => t.table === tabDt.table);
+                    if (!addedTab) await tabData.push(tabDt);
+                }
+            }
+            // Read Global Data
             if (tabData === undefined) throw new Error(`No objects readed for tables data from ${tmpFilePath}`);
         } catch(e) {
-            console.log(`ERROR on "${step}" of reading tables data: ${e}`);
+            console.log(`ERROR on step "${step}" of reading tables data: ${e}`);
             return;
         }
         // Send data to the rendering process
         // console.log(`Readed: ${JSON.stringify(tabData)}`);
-        return(tabData);
+        return tabData;
     });
 
+    /**
+     * Save All Tables Data to config file
+     * @param {event} event - event from target object
+     * @param {[]} parsedData - JSON Object with all tables data
+     * @returns {[]} parsedData - Same JSON Object parsed
+     */
     ipcMain.handle('save-all-tables', async (event, parsedData) => {
         let id = 0;
         if (parsedData === undefined) return;
@@ -128,46 +153,259 @@ function createWindow() {
         console.log('Id: ', id);
         const fGlobalPath = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_DATA);
         const fFilteredPath = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id}.json`);
+        // If no id for filter then save all to global file
         if (id === 0) {
             fs.writeFileSync(fGlobalPath, JSON.stringify(parsedData.data), 'utf-8');
-        } else {
-            let globalData = JSON.parse(JSON.stringify(parsedData.data));
-            let filteredData = JSON.parse(JSON.stringify(parsedData.data));
-            for (let tabStruc of parsedData.structure.tables) {
-                if (tabStruc === undefined) {
-                    console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
-                    continue;
-                }
-                const tabName = String(tabStruc.name);
-                const colFilter = String(tabStruc.mainfilter);
-                if (tabName === '') {
-                    console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
-                    continue;
-                }
-                // console.log(`Table=${tabName} :: Col Filter=${colFilter}`);
+            return parsedData;
+        }
+        // Initiate Global and Filtered data
+        let globalData = [];
+        let filteredData = [];
+        let mainData = JSON.parse(JSON.stringify(parsedData.data));
+        // Check all table structures
+        for (let tabStruc of parsedData.structure.tables) {
+            if (tabStruc === undefined) {
+                console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+                continue;
+            }
+            // Get table name and filtering column
+            const tabName = String(tabStruc.name);
+            const colFilter = String(tabStruc.mainfilter);
+            if (tabName === '') {
+                console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+                continue;
+            }
+            // console.log(`Table=${tabName} :: Col Filter=${colFilter}`);
+            // Search for table data
+            for (let tab of mainData) {
+                if (tab.table !== tabName) continue;
+                // If table unfiltered add to global data
                 if (colFilter === '') {
-                    // console.log(`Sem Filtro`);
+                    globalData.push(JSON.parse(JSON.stringify(tab)));
                 } else {
-                    // console.log(`Com Filtro`);
-                    for (let tab of filteredData) {
-                        if (tab.table !== tabName) continue;
-                        let dataFiltered = [];
-                        for (let row of tab.data) {
-                            if (String(row[colFilter]) === String(id)) dataFiltered.push(JSON.parse(JSON.stringify(row)));
-                        }
-                        tab.data = dataFiltered;
+                    // Filter table and add it to filtered data
+                    let dataFiltered = [];
+                    let filteredTable = JSON.parse(JSON.stringify(tab));
+                    for (let row of tab.data) {
+                        if (String(row[colFilter]) === String(id)) dataFiltered.push(JSON.parse(JSON.stringify(row)));
                     }
+                    filteredTable.data = dataFiltered;
+                    filteredData.push(filteredTable);
                 }
             }
-            fs.writeFileSync(fGlobalPath, JSON.stringify(globalData), 'utf-8');
-            fs.writeFileSync(fFilteredPath, JSON.stringify(filteredData), 'utf-8');
         }
+        // Write global and filtered files
+        fs.writeFileSync(fGlobalPath, JSON.stringify(globalData), 'utf-8');
+        fs.writeFileSync(fFilteredPath, JSON.stringify(filteredData), 'utf-8');
+        return parsedData;
+    });
+
+    /**
+     * Load resource file(s) for a particular table
+     * @param {event} event - event from target object
+     * @param {[]} parsedData - JSON Object with all data to identify the table to load from resources
+     * @returns {[]} parsedData - JSON Object with all data to load for the table
+     */
+    ipcMain.handle('get-resource', async (event, parsedData) => {
+        // let id = 0;
+        if (parsedData === undefined) return;
+        // if (parsedData.structure === undefined) return;
+        // if (parsedData.structure.app === undefined) return;
+        // if (parsedData.data === undefined) return;
+        // if (parsedData.id !== undefined) {
+        //     id = parseInt(parsedData.id);
+        //     console.log('Cenas: ', id);
+        // }
+        // // console.log('At Main: ', JSON.stringify(data));
+        // console.log('Id: ', id);
+        // const fGlobalPath = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_DATA);
+        // const fFilteredPath = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id}.json`);
+        // // If no id for filter then save all to global file
+        // if (id === 0) {
+        //     fs.writeFileSync(fGlobalPath, JSON.stringify(parsedData.data), 'utf-8');
+        //     return parsedData;
+        // }
+        // // Initiate Global and Filtered data
+        // let globalData = [];
+        // let filteredData = [];
+        // let mainData = JSON.parse(JSON.stringify(parsedData.data));
+        // // Check all table structures
+        // for (let tabStruc of parsedData.structure.tables) {
+        //     if (tabStruc === undefined) {
+        //         console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+        //         continue;
+        //     }
+        //     // Get table name and filtering column
+        //     const tabName = String(tabStruc.name);
+        //     const colFilter = String(tabStruc.mainfilter);
+        //     if (tabName === '') {
+        //         console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+        //         continue;
+        //     }
+        //     // console.log(`Table=${tabName} :: Col Filter=${colFilter}`);
+        //     // Search for table data
+        //     for (let tab of mainData) {
+        //         if (tab.table !== tabName) continue;
+        //         // If table unfiltered add to global data
+        //         if (colFilter === '') {
+        //             globalData.push(JSON.parse(JSON.stringify(tab)));
+        //         } else {
+        //             // Filter table and add it to filtered data
+        //             let dataFiltered = [];
+        //             let filteredTable = JSON.parse(JSON.stringify(tab));
+        //             for (let row of tab.data) {
+        //                 if (String(row[colFilter]) === String(id)) dataFiltered.push(JSON.parse(JSON.stringify(row)));
+        //             }
+        //             filteredTable.data = dataFiltered;
+        //             filteredData.push(filteredTable);
+        //         }
+        //     }
+        // }
+        // // Write global and filtered files
+        // fs.writeFileSync(fGlobalPath, JSON.stringify(globalData), 'utf-8');
+        // fs.writeFileSync(fFilteredPath, JSON.stringify(filteredData), 'utf-8');
+        return parsedData;
+    });
+
+    /**
+     * Load resource file(s) for all tables
+     * @param {event} event - event from target object
+     * @param {[]} parsedData - JSON Object with all data to identify/filter the information to load from resources
+     * @returns {[]} parsedData - JSON Object with all data to load for all tables
+     */
+    ipcMain.handle('get-all-resources', async (event, parsedData) => {
+        // let id = 0;
+        if (parsedData === undefined) return;
+        // if (parsedData.structure === undefined) return;
+        // if (parsedData.structure.app === undefined) return;
+        // if (parsedData.data === undefined) return;
+        // if (parsedData.id !== undefined) {
+        //     id = parseInt(parsedData.id);
+        //     console.log('Cenas: ', id);
+        // }
+        // // console.log('At Main: ', JSON.stringify(data));
+        // console.log('Id: ', id);
+        // const fGlobalPath = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_DATA);
+        // const fFilteredPath = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id}.json`);
+        // // If no id for filter then save all to global file
+        // if (id === 0) {
+        //     fs.writeFileSync(fGlobalPath, JSON.stringify(parsedData.data), 'utf-8');
+        //     return parsedData;
+        // }
+        // // Initiate Global and Filtered data
+        // let globalData = [];
+        // let filteredData = [];
+        // let mainData = JSON.parse(JSON.stringify(parsedData.data));
+        // // Check all table structures
+        // for (let tabStruc of parsedData.structure.tables) {
+        //     if (tabStruc === undefined) {
+        //         console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+        //         continue;
+        //     }
+        //     // Get table name and filtering column
+        //     const tabName = String(tabStruc.name);
+        //     const colFilter = String(tabStruc.mainfilter);
+        //     if (tabName === '') {
+        //         console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+        //         continue;
+        //     }
+        //     // console.log(`Table=${tabName} :: Col Filter=${colFilter}`);
+        //     // Search for table data
+        //     for (let tab of mainData) {
+        //         if (tab.table !== tabName) continue;
+        //         // If table unfiltered add to global data
+        //         if (colFilter === '') {
+        //             globalData.push(JSON.parse(JSON.stringify(tab)));
+        //         } else {
+        //             // Filter table and add it to filtered data
+        //             let dataFiltered = [];
+        //             let filteredTable = JSON.parse(JSON.stringify(tab));
+        //             for (let row of tab.data) {
+        //                 if (String(row[colFilter]) === String(id)) dataFiltered.push(JSON.parse(JSON.stringify(row)));
+        //             }
+        //             filteredTable.data = dataFiltered;
+        //             filteredData.push(filteredTable);
+        //         }
+        //     }
+        // }
+        // // Write global and filtered files
+        // fs.writeFileSync(fGlobalPath, JSON.stringify(globalData), 'utf-8');
+        // fs.writeFileSync(fFilteredPath, JSON.stringify(filteredData), 'utf-8');
+        return parsedData;
+    });
+
+    /**
+     * Select and Load excell file with data for all tables
+     * @param {event} event - event from target object
+     * @param {[]} parsedData - JSON Object with all data to identify/filter the information to load from excell
+     * @returns {[]} parsedData - JSON Object with all data to load for all tables
+     */
+    ipcMain.handle('get-all-from-excel', async (event, parsedData) => {
+        // let id = 0;
+        if (parsedData === undefined) return;
+        // if (parsedData.structure === undefined) return;
+        // if (parsedData.structure.app === undefined) return;
+        // if (parsedData.data === undefined) return;
+        // if (parsedData.id !== undefined) {
+        //     id = parseInt(parsedData.id);
+        //     console.log('Cenas: ', id);
+        // }
+        // // console.log('At Main: ', JSON.stringify(data));
+        // console.log('Id: ', id);
+        // const fGlobalPath = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_DATA);
+        // const fFilteredPath = path.join(FILESYS.FOLDER_CFG, `${FILESYS.FILE_DATA_PREF}${id}.json`);
+        // // If no id for filter then save all to global file
+        // if (id === 0) {
+        //     fs.writeFileSync(fGlobalPath, JSON.stringify(parsedData.data), 'utf-8');
+        //     return parsedData;
+        // }
+        // // Initiate Global and Filtered data
+        // let globalData = [];
+        // let filteredData = [];
+        // let mainData = JSON.parse(JSON.stringify(parsedData.data));
+        // // Check all table structures
+        // for (let tabStruc of parsedData.structure.tables) {
+        //     if (tabStruc === undefined) {
+        //         console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+        //         continue;
+        //     }
+        //     // Get table name and filtering column
+        //     const tabName = String(tabStruc.name);
+        //     const colFilter = String(tabStruc.mainfilter);
+        //     if (tabName === '') {
+        //         console.log(`Parsed undefined table: ${JSON.stringify(tabStruc)}`);
+        //         continue;
+        //     }
+        //     // console.log(`Table=${tabName} :: Col Filter=${colFilter}`);
+        //     // Search for table data
+        //     for (let tab of mainData) {
+        //         if (tab.table !== tabName) continue;
+        //         // If table unfiltered add to global data
+        //         if (colFilter === '') {
+        //             globalData.push(JSON.parse(JSON.stringify(tab)));
+        //         } else {
+        //             // Filter table and add it to filtered data
+        //             let dataFiltered = [];
+        //             let filteredTable = JSON.parse(JSON.stringify(tab));
+        //             for (let row of tab.data) {
+        //                 if (String(row[colFilter]) === String(id)) dataFiltered.push(JSON.parse(JSON.stringify(row)));
+        //             }
+        //             filteredTable.data = dataFiltered;
+        //             filteredData.push(filteredTable);
+        //         }
+        //     }
+        // }
+        // // Write global and filtered files
+        // fs.writeFileSync(fGlobalPath, JSON.stringify(globalData), 'utf-8');
+        // fs.writeFileSync(fFilteredPath, JSON.stringify(filteredData), 'utf-8');
         return parsedData;
     });
 
     /**
      * Generates the Final Files
      * CHANGE HERE THE CODE ACCORDING TO PROJECT NEEDS
+     * @param {event} event - event from target object
+     * @param {[]} data - JSON Object with all data needed to create final files
      * @returns {string} Output result message
      */
     ipcMain.handle('save-output', async (event, data) => {
@@ -185,8 +423,9 @@ function createWindow() {
         mainWindow.show();
     });
 
-    // Quando a janela é carregada, envia os dados iniciais
-    // ================================================================================
+    /**
+     * Quando a janela é carregada, envia os dados iniciais para renderer
+     */
     mainWindow.webContents.on('did-finish-load', () => {
         const fPathTabStruct = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_STRUC);
         const fPathDefData = path.join(FILESYS.FOLDER_CFG, FILESYS.FILE_INI);
@@ -234,6 +473,55 @@ function createWindow() {
         mainWindow.webContents.send('initial-data', {structure: tabStructures, data: tabData});
     });
 
+    // ipcMain.handle('dialog:openFile', async () => {
+    //     const result = await dialog.showOpenDialog({
+    //         properties: ['openFile'],
+    //         filters: [
+    //             { name: 'JSON Files', extensions: ['json'] },
+    //             { name: 'All Files', extensions: ['*'] }
+    //         ]
+    //     });
+    //     return result.filePaths[0];
+    // });
+
+    // ipcMain.handle('file:loadData', async (event, filePath) => {
+    //     return new Promise((resolve, reject) => {
+    //         fs.readFile(filePath, 'utf-8', (err, data) => {
+    //             if (err) {
+    //                 reject(err);
+    //             } else {
+    //                 try {
+    //                     const jsonData = JSON.parse(data);
+    //                     resolve(jsonData);
+    //                 } catch (parseError) {
+    //                     reject(parseError);
+    //                 }
+    //             }
+    //         });
+    //     });
+    // });
+
+    // ipcMain.handle('dialog:saveFile', async () => {
+    //     const result = await dialog.showSaveDialog({
+    //         filters: [
+    //             { name: 'JSON Files', extensions: ['json'] },
+    //             { name: 'All Files', extensions: ['*'] }
+    //         ]
+    //     });
+    //     return result.filePath;
+    // });
+
+    // ipcMain.handle('file:saveData', async (event, filePath, data) => {
+    //     return new Promise((resolve, reject) => {
+    //         fs.writeFile(filePath, data, 'utf-8', (err) => {
+    //             if (err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve();
+    //             }
+    //         });
+    //     });
+    // });
 }
 
 app.whenReady().then(createWindow);
